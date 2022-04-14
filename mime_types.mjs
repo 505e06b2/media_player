@@ -1,4 +1,4 @@
-const mime_types = {
+export const extensions = {
 	"html": "text/html",
 	"jpeg": "image/jpeg",
 	"jpg": "image/jpeg",
@@ -6,16 +6,16 @@ const mime_types = {
 	"svg": "image/svg+xml",
 	"json": "application/json",
 	"js": "text/javascript",
-	"css": "text/css"
+	"css": "text/css",
+	"txt": "text/plain"
 };
 
-const default_mime = "application/octet-stream";
+export const default_mime = "application/octet-stream";
+export const plain_text = extensions["txt"];
 
-export function getMimeType(filename) {
+export function getFromFilename(filename) {
 	const filename_split = filename.split(".");
 	if(filename_split.length < 2) return default_mime;
 
-	return mime_types[filename_split.pop()] || default_mime;
+	return extensions[filename_split.pop()] || default_mime;
 }
-
-export default getMimeType;

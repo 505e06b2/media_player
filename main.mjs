@@ -2,41 +2,52 @@
 
 const port = 5500;
 const webpage_assets_folder = "./webpage_assets";
+const api_path = "/api/";
 
 import http from "http";
 import fs from "fs";
 import path from "path";
 
-import getMimeType from "./mime_types.mjs";
+import * as mime_types from "./mime_types.mjs";
 
 http.createServer(async (request, response) => {
-	const url = new URL(request.url, `http://${request.headers.host}`);
-
-	//send physical file
-	let filename = path.join(process.cwd(), webpage_assets_folder, url.pathname);
-	if(filename.length < process.cwd()) { //probably not going to get hit, but a precaution (even if it's a poor one)
-		response.writeHead(400, {"Content-Type": "text/plain"});
-		response.end("Invalid path");
-		return;
+	function sendResponse(status_code = 500, content_type = mime_types.plain_text, content = "Server Error") {
+		response.writeHead(status_code, {"content-type": content_type});
+		response.end(content, typeof(content) === "string" ? undefined : "binary");
 	}
 
 	try {
-		if(fs.statSync(filename).isDirectory()) filename = path.join(filename, "index.html");
-	} catch {
-		response.writeHead(404, {"Content-Type": "text/plain"});
-		response.end("Not found");
-		return;
-	}
+		const url = new URL(request.url, `http://${request.headers.host}`);
 
-	fs.readFile(filename, "binary", (error, data) => {
-		if(error) {
-			response.writeHead(500, {"Content-Type": "text/plain"});
-			response.end(error);
-			return;
+		if(url.pathname.startsWith(api_path)) {
+			const endpoint = url.pathname.slice(api_path.length);
+			return sendResponse(200, mime_types.plain_text, endpoint);
 		}
 
-		response.writeHead(200, {"Content-Type": getMimeType(filename)});
-		response.write(data, "binary");
-		response.end();
-	});
+		//send file
+		let filename = path.join(process.cwd(), webpage_assets_folder, url.pathname);
+		if(filename.length < process.cwd()) { //probably not going to get hit, but a precaution (even if it's a poor one)
+			return sendResponse(400, mime_types.plain_text, "Invalid path");
+		}
+
+		try {
+			if(fs.statSync(filename).isDirectory()) filename = path.join(filename, "index.html");
+			fs.accessSync(filename, fs.constants.R_OK);
+		} catch {
+			return sendResponse(404, mime_types.plain_text, "Not found");
+		}
+
+		fs.readFile(filename, "binary", (error, data) => {
+			if(error) {
+				console.log(error.message);
+				return sendResponse(500, mime_types.plain_text, `Error: ${error.code} - check the log`);
+			}
+
+			return sendResponse(200, mime_types.getFromFilename(filename), data);
+		});
+
+	} catch(e) {
+		console.error("Unhandled exception:", e);
+		sendResponse();
+	}
 }).listen(port);
