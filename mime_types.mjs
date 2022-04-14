@@ -12,6 +12,7 @@ export const extensions = {
 
 export const default_mime = "application/octet-stream";
 export const plain_text = extensions["txt"];
+export const json = extensions["json"];
 
 export function getFromFilename(filename) {
 	const filename_split = filename.split(".");

@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 
 import * as mime_types from "./mime_types.mjs";
+import * as api from "./api.mjs";
 
 http.createServer(async (request, response) => {
 	function sendResponse(status_code = 500, content_type = mime_types.plain_text, content = "Server Error") {
@@ -20,8 +21,11 @@ http.createServer(async (request, response) => {
 		const url = new URL(request.url, `http://${request.headers.host}`);
 
 		if(url.pathname.startsWith(api_path)) {
-			const endpoint = url.pathname.slice(api_path.length);
-			return sendResponse(200, mime_types.plain_text, endpoint);
+			const endpoint = api[url.pathname.slice(api_path.length)];
+			if(endpoint) {
+				return sendResponse(200, mime_types.json, endpoint(url));
+			}
+			return sendResponse(500, mime_types.plain_text, "Invalid endpoint");
 		}
 
 		//send file
@@ -48,6 +52,6 @@ http.createServer(async (request, response) => {
 
 	} catch(e) {
 		console.error("Unhandled exception:", e);
-		sendResponse();
+		return sendResponse();
 	}
 }).listen(port);
