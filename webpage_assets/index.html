@@ -1,8 +1,30 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="utf8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>music player</title>
 		<link rel="stylesheet" href="style.css">
+		<script type="module" src="js/main.mjs"></script>
 	</head>
-	<body>lol</body>
+	<body>
+		<div id="loading" class="centre">Loading...</div>
+		<div id="page-container">
+			<div id="content">
+				<div class="heading">/</div>
+				<!-- grid/list -->
+			</div>
+			<div id="bottom-dock">
+				<span class="album">
+					<span>album</span>
+				</span>
+				<span class="controls">
+					<a title="Play/Pause" id="play-pause" href="#play-pause" onclick="return false">|></a>
+				</span>
+				<span class="volume">
+					<span>volume</span>
+				</span>
+			</div>
+		</div>
+	</body>
 </html>
