@@ -6,8 +6,12 @@ export const extensions = {
 	"svg": "image/svg+xml",
 	"json": "application/json",
 	"js": "text/javascript",
+	"mjs": "text/javascript",
 	"css": "text/css",
-	"txt": "text/plain"
+	"txt": "text/plain",
+	"opus": "audio/ogg",
+	"ttf": "font/ttf",
+	"woff": "font/woff"
 };
 
 export const default_mime = "application/octet-stream";
