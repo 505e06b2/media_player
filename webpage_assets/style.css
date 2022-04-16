@@ -1,8 +1,9 @@
 :root {
 	--background: rgb(10, 10, 10);
-	--dock-background: rgb(2, 51, 0);
-	--dock-height: 50px;
 	--text-colour: rgb(31, 255, 80);
+	--dock-background: rgb(2, 51, 0);
+	--dock-height: 40px;
+	--dock-border: 3px solid var(--text-colour);
 }
 
 @font-face {
@@ -14,26 +15,57 @@ body {
 	background: var(--background);
 	color: var(--text-colour);
 	font-family: "IBM", "Courier New", Courier, monospace;
+	margin: 0px;
+	padding: 0px;
+}
+
+a {
+	color: inherit;
+	text-decoration: inherit;
 }
 
 #page-container {
 	display: none;
 }
 
+#top-dock {
+	border-bottom: var(--dock-border);
+	top: 0px;
+	overflow-x: auto;
+	word-break: keep-all;
+	white-space: pre;
+}
+
+#top-dock .path {
+	margin-left: 20px;
+	height: 100%;
+}
+
+#top-dock .path a {
+	display: inline-flex;
+	align-items: center;
+	height: 100%;
+	padding-right: 5px;
+}
+
 #content {
-	margin-bottom: var(--dock-height);
+	margin-top: calc(var(--dock-height) + 10px);
+	margin-bottom: calc(var(--dock-height) + 10px);
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+#content .list a {
+	display: block;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	word-break: break-word;
+	white-space: pre-wrap;
 }
 
 #bottom-dock {
-	display: flex;
-	position: fixed;
-	height: var(--dock-height);
 	bottom: 0px;
-	left: 0px;
-	right: 0px;
-	border-top: 3px solid var(--text-colour);
-	background: var(--dock-background);
-	align-items: center;
+	border-top: var(--dock-border);
 }
 
 #bottom-dock > span {
@@ -49,8 +81,6 @@ body {
     justify-content: center;
 	height: 100%;
 	width: 100%;
-	color: inherit;
-	text-decoration: inherit;
 }
 
 .centre {
@@ -62,4 +92,16 @@ body {
 	right: 0px;
 	align-items: center;
     justify-content: center;
+	text-align: center;
+	word-break: break-word;
+}
+
+.dock {
+	display: flex;
+	position: fixed;
+	height: var(--dock-height);
+	left: 0px;
+	right: 0px;
+	background: var(--dock-background);
+	align-items: center;
 }
