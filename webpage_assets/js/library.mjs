@@ -31,7 +31,7 @@ export const Library = {
 
 				//link songs
 				playlist.songs = [];
-				for(const song_id in playlist_data.song_ids) {
+				for(const song_id of playlist_data.song_ids) {
 					playlist.songs.push(_songs[song_id]);
 				}
 				delete playlist_data.song_ids; //don't need this for Playlist as linked
