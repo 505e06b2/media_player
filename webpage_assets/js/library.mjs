@@ -26,6 +26,9 @@ export const Library = {
 			//initialise playlists
 			for(const playlist_data of api_response.playlists) {
 				const playlist = new Library.Playlist();
+				//interpret created date
+				playlist_data.creation_date = new Date(playlist_data.creation_date);
+
 				//link songs
 				playlist.songs = [];
 				for(const song_id in playlist_data.song_ids) {
