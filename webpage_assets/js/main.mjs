@@ -5,12 +5,32 @@ let library;
 let content_container;
 let top_dock_path;
 
-function createListItem(name, onclickHandler = () => false) {
+function caseInsensitiveSort(a, b) {
+	return a.localeCompare(b, "en", {sensitivity: "base"});
+}
+
+function createBoxIndent(value, array) {
+	return (value === array[array-1] ? "└" : "├") + "── ";
+}
+
+function createListItem(name, onclickHandler = null) {
 	const plaintext = name.replace(/[└─├]/gs, "").trim();
+	const elem = Elements.create("a", {
+		innerText: name,
+		title: plaintext
+	});
+	if(onclickHandler) {
+		elem.href = `#${plaintext}`;
+		elem.onclick = (e) => {onclickHandler(); return false;}
+	}
+	return elem;
+}
+
+function createPathItem(name, onclickHandler = () => false) {
 	return Elements.create("a", {
 		innerText: name,
-		href: `#${plaintext}`,
-		title: plaintext,
+		href: `#${name}`,
+		title: name,
 		onclick: (e) => {onclickHandler(); return false;}
 	});
 }
@@ -23,22 +43,73 @@ function openFolder(playlist) {
 		if(playlist instanceof(Library.Playlist) === false) {
 			throw `"${playlist}" is an invalid playlist`;
 		}
-		console.log(playlist);
+
+		top_dock_path.append(createPathItem(`${playlist.name}/`, () => openFolder(playlist)));
+		for(let current = playlist.parent; current != null; current = current.parent) {
+			const next = createPathItem(`${current.name}/`, () => openFolder(current));
+			top_dock_path.insertBefore(next, top_dock_path.children[top_dock_path.children.length-1]);
+		}
+
+		switch(playlist.type) {
+			case "artist":
+				if(playlist.children.length) {
+					content_container.append(createListItem("child_playlists"));
+					for(const child_playlist of playlist.children) {
+						const indent = createBoxIndent(child_playlist, playlist.children);
+						content_container.append(createListItem(
+							`${indent}${child_playlist.name}`,
+							() => openFolder(child_playlist))
+						);
+					}
+				}
+
+				content_container.append(createListItem("songs"));
+				const sorted_songs = playlist.songs.sort((a, b) => caseInsensitiveSort(a.title, b.title));
+				for(const song of sorted_songs) {
+					const indent = createBoxIndent(song, sorted_songs);
+					content_container.append(createListItem(
+						`${indent}${song.title}`,
+						() => openFile(playlist, song)
+					));
+				}
+				break;
+
+			case "album":
+				for(const song of playlist.songs) {
+					content_container.append(createListItem(
+						`${song.track.toString().padStart(3)} ${song.title}`,
+						() => openFile(playlist, song)
+					));
+				}
+				break;
+
+			default:
+				for(const song of playlist.songs) {
+					content_container.append(createListItem(
+						song.title,
+						() => openFile(playlist, song)
+					));
+				}
+		}
 
 	} else { //list top level playlists, with children - orphaned and double-nested (Parent->Child->Child) playlists will not appear
 		const top_level = library.getTopLevelPlaylists();
 		for(const playlist of top_level) {
 			content_container.append(createListItem(playlist.name, () => openFolder(playlist)));
 			for(const child of playlist.children) {
-				const box_char = child === playlist.children[playlist.children.length-1] ? "└" : "├"; //if last use left
-				content_container.append(createListItem(`${box_char}── ${child.name}`, () => openFolder(child)));
+				const indent = createBoxIndent(child, playlist.children);
+				content_container.append(createListItem(
+					`${indent}${child.name}`,
+					() => openFolder(child))
+				);
 			}
 		}
 	}
 }
 
-function openFile(artist, album, song) {
-	console.log("Playing", artist, album, song);
+function openFile(playlist, song = null) {
+	if(!song) song = playlist.songs[0];
+	console.log("Playing", playlist, song);
 }
 
 try {

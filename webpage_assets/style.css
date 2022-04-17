@@ -37,7 +37,6 @@ a {
 }
 
 #top-dock .path {
-	margin-left: 20px;
 	height: 100%;
 }
 
@@ -45,6 +44,7 @@ a {
 	display: inline-flex;
 	align-items: center;
 	height: 100%;
+	padding-left: 20px;
 	padding-right: 5px;
 }
 
