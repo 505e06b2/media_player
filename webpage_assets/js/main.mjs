@@ -132,10 +132,12 @@ function updateCurrentlyPlaying(playlist, song) {
 	currently_playing_elem.innerText = song.title;
 	currently_playing_elem.title = song.title;
 	currently_playing_elem.onclick = () => {openFolder(playlist); return false;}
-	const find_elem = Elements.find(`#content a[uri="${song.uri}"]`);
-	if(find_elem) {
-		find_elem.classList.add("playing");
-	}
+
+	const previous = Elements.find(`#content .playing`);
+	if(previous) previous.classList.remove("playing");
+
+	const current = Elements.find(`#content a[uri="${song.uri}"]`);
+	if(current) current.classList.add("playing");
 }
 
 try {
