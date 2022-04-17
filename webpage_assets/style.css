@@ -55,7 +55,7 @@ a {
 	margin-right: 20px;
 }
 
-#content .list a {
+#content.list a {
 	display: block;
 	padding-top: 10px;
 	padding-bottom: 10px;

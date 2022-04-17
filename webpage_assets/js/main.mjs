@@ -3,14 +3,7 @@ import Library from "./library.mjs";
 
 let library;
 let content_container;
-let previous_content;
 let top_dock_path;
-
-function replaceContent(replace_with = "") {
-	if(previous_content) previous_content.delete();
-	previous_content = replace_with;
-	content_container.append(previous_content);
-}
 
 function createListItem(name, onclickHandler = () => false) {
 	const plaintext = name.replace(/[└─├]/gs, "").trim();
@@ -23,6 +16,7 @@ function createListItem(name, onclickHandler = () => false) {
 }
 
 function openFolder(playlist) {
+	content_container.innerHTML = "";
 	Array.from(top_dock_path.children).slice(1).map(x => x.outerHTML = "");
 
 	if(playlist !== undefined) { //list songs
@@ -31,21 +25,16 @@ function openFolder(playlist) {
 		}
 		console.log(playlist);
 
-	} else { //list playlists, with nesting if necessary
+	} else { //list top level playlists, with children - orphaned and double-nested (Parent->Child->Child) playlists will not appear
 		const top_level = library.getTopLevelPlaylists();
-		const container_elem = Elements.create("div", {className: "list"});
 		for(const playlist of top_level) {
-			container_elem.append(createListItem(playlist.name, () => openFolder(playlist)));
+			content_container.append(createListItem(playlist.name, () => openFolder(playlist)));
 			for(const child of playlist.children) {
 				const box_char = child === playlist.children[playlist.children.length-1] ? "└" : "├"; //if last use left
-				container_elem.append(createListItem(`${box_char}── ${child.name}`, () => openFolder(child)));
+				content_container.append(createListItem(`${box_char}── ${child.name}`, () => openFolder(child)));
 			}
 		}
-		replaceContent(container_elem);
-		return false;
 	}
-
-	return false;
 }
 
 function openFile(artist, album, song) {
@@ -56,7 +45,7 @@ try {
 	library = new Library.Library(await(await fetch("api/getLibrary")).json());
 	content_container = Elements.find('#content');
 	top_dock_path = Elements.find('#top-dock .path');
-	Elements.find('#root').onclick = () => openFolder();
+	Elements.find('#root').onclick = () => {openFolder(); return false;}
 
 	openFolder();
 
