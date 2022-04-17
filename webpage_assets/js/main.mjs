@@ -5,25 +5,33 @@ import AudioManager from "./audio_manager.mjs";
 let library;
 let content_container;
 let top_dock_path;
-
-function caseInsensitiveSort(a, b) {
-	return a.localeCompare(b, "en", {sensitivity: "base"});
-}
+let play_pause_button;
+let currently_playing_elem;
 
 function createBoxIndent(value, array) {
 	return (value === array[array.length-1] ? "└" : "├") + "── ";
 }
 
-function createListItem(name, onclickHandler = null) {
+function createListItem(name, onclickHandler = null, song = null) {
 	const plaintext = name.replace(/[└─├]/gs, "").trim();
 	const elem = Elements.create("a", {
 		innerText: name,
 		title: plaintext
 	});
+
 	if(onclickHandler) {
 		elem.href = `#${plaintext}`;
 		elem.onclick = (e) => {onclickHandler(); return false;}
 	}
+
+	if(song) {
+		elem.setAttribute("overlay-text", name);
+		elem.setAttribute("uri", song.uri);
+		if(song === AudioManager.getSong()) {
+			elem.classList.add("playing");
+		}
+	}
+
 	return elem;
 }
 
@@ -69,7 +77,8 @@ function openFolder(playlist) {
 					const indent = createBoxIndent(song, playlist.songs);
 					content_container.append(createListItem(
 						`${indent}${song.title}`,
-						() => openFile(playlist, song)
+						() => openFile(playlist, song),
+						song
 					));
 				}
 				break;
@@ -78,7 +87,8 @@ function openFolder(playlist) {
 				for(const song of playlist.songs) {
 					content_container.append(createListItem(
 						`${song.track.toString().padStart(3)} ${song.title}`,
-						() => openFile(playlist, song)
+						() => openFile(playlist, song),
+						song
 					));
 				}
 				break;
@@ -87,7 +97,8 @@ function openFolder(playlist) {
 				for(const song of playlist.songs) {
 					content_container.append(createListItem(
 						song.title,
-						() => openFile(playlist, song)
+						() => openFile(playlist, song),
+						song
 					));
 				}
 		}
@@ -113,11 +124,34 @@ function openFile(playlist, song = null) {
 	AudioManager.setPlaylist(playlist, song);
 }
 
+function updatePlayPause(current_state) {
+	play_pause_button.innerText = current_state === "paused" ? "+>" : "][";
+}
+
+function updateCurrentlyPlaying(playlist, song) {
+	currently_playing_elem.innerText = song.title;
+	currently_playing_elem.title = song.title;
+	currently_playing_elem.onclick = () => {openFolder(playlist); return false;}
+	const find_elem = Elements.find(`#content a[uri="${song.uri}"]`);
+	if(find_elem) {
+		find_elem.classList.add("playing");
+	}
+}
+
 try {
 	library = new Library.Library(await(await fetch("api/getLibrary")).json());
 	content_container = Elements.find('#content');
+	currently_playing_elem = Elements.find('#currently-playing');
+	play_pause_button = Elements.find('#play-pause');
 	top_dock_path = Elements.find('#top-dock .path');
-	Elements.find('#root').onclick = () => {openFolder(); return false;}
+
+	Elements.find('#root').onclick = () => {openFolder(); return false;} //root path
+	Elements.find('#volume').oninput = (e) => AudioManager.volume(parseInt(e.target.value));
+
+	AudioManager.bindNewTrack(updateCurrentlyPlaying);
+
+	play_pause_button.onclick = (e) => {AudioManager.togglePlayPause(); return false;}
+	AudioManager.bindPlayPause(updatePlayPause);
 
 	openFolder();
 

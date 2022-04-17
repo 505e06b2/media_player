@@ -1,0 +1,35 @@
+
+input[type="range"] {
+	position: relative;
+    margin: 0px;
+    -webkit-appearance: none;
+    overflow: hidden;
+	outline: none;
+	background: transparent;
+}
+
+input[type="range"]::after {
+	content: "volume";
+	display: flex;
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	align-items: center;
+    justify-content: center;
+	font-family: var(--font-family);
+	color: var(--text-colour);
+	mix-blend-mode: difference;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    background: transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 0px;
+    height: 0px;
+    box-shadow: -100vw 0 0 100vw var(--text-colour);
+}

@@ -5,6 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>𝚖𝚎𝚍𝚒𝚊_𝚙𝚕𝚊𝚢𝚎𝚛</title>
 		<link rel="stylesheet" href="style.css">
+		<link rel="stylesheet" href="range_sliders.css">
 		<script type="module" src="js/main.mjs"></script>
 	</head>
 	<body>
@@ -15,14 +16,14 @@
 			</div>
 			<div id="content" class="list"></div>
 			<div id="bottom-dock" class="dock">
-				<span class="album">
-					<span>album</span>
+				<span>
+					<a id="currently-playing" href="#go-to-playlist" onclick="return false">nothing playing</a>
 				</span>
-				<span class="controls">
-					<a title="Play/Pause" id="play-pause" href="#play-pause" onclick="return false">+></a>
+				<span>
+					<a title="Play/Pause" id="play-pause" href="#play-pause" onclick="return false">[]</a>
 				</span>
-				<span class="volume">
-					<span>volume</span>
+				<span>
+					<input title="Volume" id="volume" type="range" min="0" step="1" value="100" max="100"/>
 				</span>
 			</div>
 		</div>

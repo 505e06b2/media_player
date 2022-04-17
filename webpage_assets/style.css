@@ -4,6 +4,7 @@
 	--dock-background: rgb(2, 51, 0);
 	--dock-height: 40px;
 	--dock-border: 3px solid var(--text-colour);
+	--font-family: "IBM", "Courier New", Courier, monospace;
 }
 
 @font-face {
@@ -14,7 +15,7 @@
 body {
 	background: var(--background);
 	color: var(--text-colour);
-	font-family: "IBM", "Courier New", Courier, monospace;
+	font-family: var(--font-family);
 	margin: 0px;
 	padding: 0px;
 }
@@ -63,6 +64,24 @@ a {
 	white-space: pre-wrap;
 }
 
+#content .playing {
+	position: relative;
+	background: var(--text-colour);
+}
+
+#content .playing::after {
+	content: attr(overlay-text);
+	color: var(--text-colour);
+	mix-blend-mode: difference;
+	display: flex;
+	align-items: center;
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+}
+
 #bottom-dock {
 	bottom: 0px;
 	border-top: var(--dock-border);
@@ -81,6 +100,14 @@ a {
     justify-content: center;
 	height: 100%;
 	width: 100%;
+}
+
+#bottom-dock #currently-playing {
+	overflow: hidden;
+	word-break: break-all;
+	max-width: 33vw;
+	min-width: 0px;
+	justify-content: left;
 }
 
 .centre {
