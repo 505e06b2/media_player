@@ -1,3 +1,5 @@
+"use strict";
+
 import Elements from "./elements.mjs";
 import Library from "./library.mjs";
 import AudioManager from "./audio_manager.mjs";
@@ -7,6 +9,7 @@ let content_container;
 let top_dock_path;
 let play_pause_button;
 let currently_playing_elem;
+let seekbar;
 
 function createBoxIndent(value, array) {
 	return (value === array[array.length-1] ? "└" : "├") + "── ";
@@ -124,10 +127,28 @@ function openFile(playlist, song = null) {
 }
 
 function updatePlayPause(current_state) {
-	play_pause_button.innerText = current_state === "paused" ? "+>" : "][";
+	switch(current_state) {
+		case "paused":
+			play_pause_button.innerText = "+>";
+			break;
+
+		case "playing":
+			play_pause_button.innerText = "][";
+			break;
+
+		default:
+			play_pause_button.innerText = "[]";
+	}
 }
 
 function updateCurrentlyPlaying(playlist, song) {
+	if(playlist === null && song === null) { //not tested
+		currently_playing_elem.innerText = "nothing playing";
+		currently_playing_elem.title = currently_playing_elem.innerText;
+		currently_playing_elem.onclick = () => false;
+		return;
+	}
+
 	currently_playing_elem.innerText = song.title;
 	currently_playing_elem.title = song.title;
 	currently_playing_elem.onclick = () => {openFolder(playlist); return false;}
@@ -139,12 +160,17 @@ function updateCurrentlyPlaying(playlist, song) {
 	if(current) current.classList.add("playing");
 }
 
+function updateSeek(percent) {
+	seekbar.style.background = `linear-gradient(to right, var(--text-colour) 0%, var(--text-colour) ${percent}%, var(--dock-background) ${percent}%, var(--dock-background) 100%)`;
+}
+
 try {
 	library = new Library.Library(await(await fetch("api/getLibrary")).json());
 	content_container = Elements.find('#content');
 	currently_playing_elem = Elements.find('#currently-playing');
 	play_pause_button = Elements.find('#play-pause');
 	top_dock_path = Elements.find('#top-dock .path');
+	seekbar = Elements.find('#seekbar');
 
 	Elements.find('#root').onclick = () => {openFolder(); return false;} //root path
 	Elements.find('#volume').oninput = (e) => AudioManager.volume(parseInt(e.target.value));
@@ -153,6 +179,9 @@ try {
 
 	play_pause_button.onclick = (e) => {AudioManager.togglePlayPause(); return false;}
 	AudioManager.bindPlayPause(updatePlayPause);
+
+	seekbar.onclick = (e) => {console.log(e); AudioManager.seek(e.clientX / window.innerWidth * 100); return false;}
+	AudioManager.bindTimeUpdate(updateSeek);
 
 	openFolder();
 

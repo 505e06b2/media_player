@@ -88,6 +88,19 @@ a {
 	border-top: var(--dock-border);
 }
 
+#seekbar {
+	position: fixed;
+	bottom: var(--dock-height);
+	height: 3px;
+	width: 100vw;
+	border-top: 10px solid var(--background);
+	background: transparent;
+}
+
+#seekbar:hover {
+	height: 20px;
+}
+
 #bottom-dock > span {
 	display: block;
 	flex: 1 1 100%;
