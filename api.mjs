@@ -7,6 +7,10 @@ import * as metadata from "music-metadata";
 
 //musicbrainz picard tagged files expected
 
+/*
+!! This does not allow playlists to be made, then files removed from the system as IDs are incremental!!
+*/
+
 const music = {
 	playlists: [],
 	songs: []
