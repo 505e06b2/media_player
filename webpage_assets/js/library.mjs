@@ -1,3 +1,5 @@
+"use strict";
+
 export const Library = {
 	Playlist: function() {
 		this.print = () => console.log(this);
