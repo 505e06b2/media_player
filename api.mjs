@@ -78,6 +78,7 @@ for(const artist of listDirectories(settings.music_folder)) {
 		artist_album_playlists.push(createPlaylistObject(album, album_song_ids, "album", album_released));
 	}
 
+	artist_song_ids.sort((a, b) => caseInsensitiveSort(music["songs"][a].title, music["songs"][b].title));
 	music["playlists"].push(createPlaylistObject(artist, artist_song_ids, "artist"));
 	const artist_playlist_id = music["playlists"].length-1;
 	for(const album of artist_album_playlists.sort((a, b) => a.track - b.track)) { //sorting needs a test - would want oldest last?
