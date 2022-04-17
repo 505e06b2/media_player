@@ -9,6 +9,7 @@ import * as metadata from "music-metadata";
 
 /*
 !! This does not allow playlists to be made, then files removed from the system as IDs are incremental!!
+!! This will also affect playlist when songs are added, as IDs may shift too !!
 */
 
 const music = {
@@ -16,9 +17,11 @@ const music = {
 	songs: []
 };
 
-function createPlaylistObject(name, song_ids = [], created = 0) {
+function createPlaylistObject(name, song_ids = [], type = "created", created = 0, parent = null) {
 	return {
 		name: name,
+		type: type,
+		parent: parent,
 		creation_date: created || Date.now(),
 		song_ids: song_ids
 	};
@@ -72,10 +75,12 @@ for(const artist of listDirectories(settings.music_folder)) {
 		const album_song_ids = Array.from(music["songs"].keys()).slice(first_id);
 		artist_song_ids.push(...album_song_ids);
 		const album_released = album_songs[0] && new Date(`${album_songs[0].year}`).getTime();
-		artist_album_playlists.push(createPlaylistObject(`Album: ${album}`, album_song_ids, album_released));
+		artist_album_playlists.push(createPlaylistObject(album, album_song_ids, "album", album_released));
 	}
-	music["playlists"].push(createPlaylistObject(`Artist: ${artist}`, artist_song_ids));
+
+	music["playlists"].push(createPlaylistObject(artist, artist_song_ids, "artist"));
 	for(const album of artist_album_playlists.sort((a, b) => a.track - b.track)) { //sorting needs a test - would want oldest last?
+		album.parent = music["playlists"].length-1;
 		music["playlists"].push(album);
 	}
 }
