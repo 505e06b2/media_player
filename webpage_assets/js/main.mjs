@@ -1,5 +1,6 @@
 import Elements from "./elements.mjs";
 import Library from "./library.mjs";
+import AudioManager from "./audio_manager.mjs";
 
 let library;
 let content_container;
@@ -10,7 +11,7 @@ function caseInsensitiveSort(a, b) {
 }
 
 function createBoxIndent(value, array) {
-	return (value === array[array-1] ? "└" : "├") + "── ";
+	return (value === array[array.length-1] ? "└" : "├") + "── ";
 }
 
 function createListItem(name, onclickHandler = null) {
@@ -64,9 +65,8 @@ function openFolder(playlist) {
 				}
 
 				content_container.append(createListItem("songs"));
-				const sorted_songs = playlist.songs.sort((a, b) => caseInsensitiveSort(a.title, b.title));
-				for(const song of sorted_songs) {
-					const indent = createBoxIndent(song, sorted_songs);
+				for(const song of playlist.songs) {
+					const indent = createBoxIndent(song, playlist.songs);
 					content_container.append(createListItem(
 						`${indent}${song.title}`,
 						() => openFile(playlist, song)
@@ -110,6 +110,7 @@ function openFolder(playlist) {
 function openFile(playlist, song = null) {
 	if(!song) song = playlist.songs[0];
 	console.log("Playing", playlist, song);
+	AudioManager.setPlaylist(playlist, song);
 }
 
 try {

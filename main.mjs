@@ -28,7 +28,7 @@ http.createServer(async (request, response) => {
 		}
 
 		//send file
-		let filename = path.join(settings.webpage_assets_folder, url.pathname);
+		let filename = path.join(settings.webpage_assets_folder, decodeURI(url.pathname));
 		if(filename.length < process.cwd()) { //probably not going to get hit, but a precaution (even if it's a poor one)
 			return sendResponse(400, mime_types.plain_text, "Invalid path");
 		}
