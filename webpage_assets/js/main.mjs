@@ -1,68 +1,50 @@
 import Elements from "./elements.mjs";
+import Library from "./library.mjs";
 
 let library;
 let content_container;
 let previous_content;
 let top_dock_path;
 
-function createFolderList(folder, onclick = () => undefined) {
-	const container = Elements.create("div", {className: "list"});
-	for(const name of Object.keys(folder)) {
-		container.append(Elements.create("a", {
-			innerText: `(${Object.values(folder[name]).length}) ${name}`,
-			href: `#${name}`,
-			title: name,
-			onclick: () => {onclick(name); return false}
-		}));
-	}
-	return container;
+function replaceContent(replace_with = "") {
+	if(previous_content) previous_content.delete();
+	previous_content = replace_with;
+	content_container.append(previous_content);
 }
 
-function createSongList(folder, onclick = () => undefined) {
-	const container = Elements.create("div", {className: "list"});
-	for(const x of Object.values(folder)) {
-		container.append(Elements.create("a", {
-			innerText: `${x.track.toString().padStart(3)} ${x.title}`,
-			href: `#${x.title}`,
-			title: x.title,
-			onclick: () => {onclick(x.title); return false}
-		}));
-	}
-	return container;
+function createListItem(name, onclickHandler = () => false) {
+	const plaintext = name.replace(/[└─├]/gs, "").trim();
+	return Elements.create("a", {
+		innerText: name,
+		href: `#${plaintext}`,
+		title: plaintext,
+		onclick: (e) => {onclickHandler(); return false;}
+	});
 }
 
-function openFolder(artist = "", album = "") {
-	let folder = library;
-	let onclick = (name) => openFolder(name);
+function openFolder(playlist) {
 	Array.from(top_dock_path.children).slice(1).map(x => x.outerHTML = "");
 
-	if(artist) {
-		folder = folder[artist];
-		onclick = (name) => openFolder(artist, name);
-		top_dock_path.append(Elements.create("a", {
-			href: `#${artist}`,
-			onclick: () => openFolder(artist),
-			innerText: `${artist}/`,
-			title: artist
-		}));
-	}
-	if(!folder) throw `"${artist}" is an invalid artist`;
+	if(playlist !== undefined) { //list songs
+		if(playlist instanceof(Library.Playlist) === false) {
+			throw `"${playlist}" is an invalid playlist`;
+		}
+		console.log(playlist);
 
-	if(album) {
-		folder = folder[album];
-		onclick = (name) => openFile(artist, album, name);
-		top_dock_path.append(Elements.create("a", {
-			href: `#${album}`,
-			onclick: () => openFolder(artist, album),
-			innerText: `${album}/`,
-			title: album
-		}));
+	} else { //list playlists, with nesting if necessary
+		const top_level = library.getTopLevelPlaylists();
+		const container_elem = Elements.create("div", {className: "list"});
+		for(const playlist of top_level) {
+			container_elem.append(createListItem(playlist.name, () => openFolder(playlist)));
+			for(const child of playlist.children) {
+				const box_char = child === playlist.children[playlist.children.length-1] ? "└" : "├"; //if last use left
+				container_elem.append(createListItem(`${box_char}── ${child.name}`, () => openFolder(child)));
+			}
+		}
+		replaceContent(container_elem);
+		return false;
 	}
-	if(!folder) throw `"${album}" is an invalid album`;
 
-	if(previous_content) previous_content.delete();
-	previous_content = artist && album && createSongList(folder, onclick) || createFolderList(folder, onclick);
-	content_container.append(previous_content);
 	return false;
 }
 
@@ -71,7 +53,7 @@ function openFile(artist, album, song) {
 }
 
 try {
-	library = await(await fetch("api/getLibrary")).json();
+	library = new Library.Library(await(await fetch("api/getLibrary")).json());
 	content_container = Elements.find('#content');
 	top_dock_path = Elements.find('#top-dock .path');
 	Elements.find('#root').onclick = () => openFolder();

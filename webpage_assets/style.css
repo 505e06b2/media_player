@@ -57,8 +57,8 @@ a {
 
 #content .list a {
 	display: block;
-	margin-top: 10px;
-	margin-bottom: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 	word-break: break-word;
 	white-space: pre-wrap;
 }
