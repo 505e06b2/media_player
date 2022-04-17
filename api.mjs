@@ -71,9 +71,9 @@ for(const artist of listDirectories(settings.music_folder)) {
 		album_songs.sort((a, b) => a.track > b.track ? 1 : -1);
 		const first_id = music["songs"].length;
 		music["songs"].push(...album_songs);
-
 		const album_song_ids = Array.from(music["songs"].keys()).slice(first_id);
 		artist_song_ids.push(...album_song_ids);
+
 		const album_released = album_songs[0] && new Date(`${album_songs[0].year}`).getTime();
 		artist_album_playlists.push(createPlaylistObject(album, album_song_ids, "album", album_released));
 	}
