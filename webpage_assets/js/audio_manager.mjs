@@ -22,8 +22,7 @@ function AudioManager() {
 		const song = this.getSong();
 		_audio.src = song.uri;
 		_audio.play();
-		_play_pause_callback(State.playing);
-		_new_track_callback(_current_playlist, song);
+		_new_track_callback(this.getPlaylist(), song);
 	}
 
 	this.setPlaylist = (playlist, song = null) => {
@@ -42,6 +41,9 @@ function AudioManager() {
 
 	this.bindPlayPause = (callback) => _play_pause_callback = callback;
 	this.bindNewTrack = (callback) => _new_track_callback = callback;
+	_audio.onplay = () => _play_pause_callback(this.state());
+	_audio.onpause = () => _play_pause_callback(this.state());
+	_audio.onended = () => _playNext();
 
 	this.getSong = () => {
 		if(_playlist_index >= 0) return _current_playlist.songs[_playlist_index];
@@ -59,7 +61,6 @@ function AudioManager() {
 		if(!_audio.src) return;
 		const state = this.state();
 		state === State.playing ? this.pause() : this.play();
-		_play_pause_callback(this.state());
 	};
 	this.stop = () => {
 		_audio.pause();

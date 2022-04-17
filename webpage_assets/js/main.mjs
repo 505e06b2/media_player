@@ -120,7 +120,6 @@ function openFolder(playlist) {
 
 function openFile(playlist, song = null) {
 	if(!song) song = playlist.songs[0];
-	console.log("Playing", playlist, song);
 	AudioManager.setPlaylist(playlist, song);
 }
 
