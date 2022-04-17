@@ -3,16 +3,32 @@ import path from "path";
 
 import * as settings from "./settings.mjs";
 
-const music = {};
+import * as metadata from "music-metadata";
 
-//only works with musicbrainz default name scheme "00 song title.opus"
-function createSongObject(artist_name, album_name, song_filename) {
+//musicbrainz picard tagged files expected
+
+const music = {
+	playlists: [],
+	songs: []
+};
+
+function createPlaylistObject(name, song_ids = [], created = 0) {
 	return {
-		//artist: artist_name,
-		//album: album_name,
-		title: song_filename.slice(3, -5),
-		track: parseInt(song_filename.slice(0,3)),
-		uri: `${settings.music_uri}${artist_name}/${album_name}/${song_filename}`
+		name: name,
+		creation_date: created || Date.now(),
+		song_ids: song_ids
+	};
+}
+
+function createSongObject(filepath, song_data) {
+	return {
+		artist: song_data.common.artist,
+		album: song_data.common.album,
+		title: song_data.common.title,
+		track: song_data.common.track.no,
+		year: song_data.common.year,
+		duration: song_data.format.duration,
+		uri: filepath
 	};
 }
 
@@ -34,19 +50,38 @@ function caseInsensitiveSort(a, b) {
 
 //generate cache
 for(const artist of listDirectories(settings.music_folder)) {
-	const current_artist = {};
+	const artist_song_ids = [];
+	const artist_album_playlists = [];
 	for(const album of listDirectories(settings.music_folder, artist).sort(caseInsensitiveSort)) {
-		const current_album = listFiles(settings.music_folder, artist, album)
-			.filter(x => x !== "cover.jpg")
-			.map(x => createSongObject(artist, album, x))
-			.sort((a, b) => a.track > b.track ? 1 : -1);
-		current_artist[album] = current_album;
+		const album_songs = [];
+
+		for(const song of listFiles(settings.music_folder, artist, album).filter(x => x !== "cover.jpg")) {
+			const path_suffix = path.join(artist, album, song);
+			const song_metadata = await metadata.parseFile(path.join(settings.music_folder, path_suffix));
+			album_songs.push(createSongObject(path.join(settings.music_uri, path_suffix), song_metadata));
+		}
+
+		album_songs.sort((a, b) => a.track > b.track ? 1 : -1);
+		const first_id = music["songs"].length;
+		music["songs"].push(...album_songs);
+
+		const album_song_ids = Array.from(music["songs"].keys()).slice(first_id);
+		artist_song_ids.push(...album_song_ids);
+		const album_released = album_songs[0] && new Date(`${album_songs[0].year}`).getTime();
+		artist_album_playlists.push(createPlaylistObject(`Album: ${album}`, album_song_ids, album_released));
 	}
-	music[artist] = current_artist;
+	music["playlists"].push(createPlaylistObject(`Artist: ${artist}`, artist_song_ids));
+	for(const album of artist_album_playlists.sort((a, b) => a.track - b.track)) { //sorting needs a test - would want oldest last?
+		music["playlists"].push(album);
+	}
 }
 
-console.log("Loaded Media:", JSON.stringify(music, null, 2));
+console.log("Loaded Media:");
+for(const song of music["songs"]) {
+	console.log("\t", song.artist, "-", song.title);
+}
 
+//anything exported is available via /api/*
 export async function getLibrary(url) {
 	return music;
 }

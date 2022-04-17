@@ -1,0 +1,22 @@
+{
+  "name": "media_player",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.mjs",
+  "scripts": {
+    "start": "node main.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/505e06b2/media_server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/505e06b2/media_server/issues"
+  },
+  "homepage": "https://github.com/505e06b2/media_server#readme",
+  "dependencies": {
+    "music-metadata": "^7.12.3"
+  }
+}
