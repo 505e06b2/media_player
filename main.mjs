@@ -1,5 +1,7 @@
 #!/usr/bin/env nodejs
 
+"use strict";
+
 import http from "http";
 import fs from "fs";
 import path from "path";

@@ -1,3 +1,5 @@
+"use strict";
+
 import path from "path";
 
 export const port = 5500;

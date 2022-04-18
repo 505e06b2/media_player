@@ -1,3 +1,5 @@
+"use strict";
+
 export const extensions = {
 	"html": "text/html",
 	"jpeg": "image/jpeg",
