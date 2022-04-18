@@ -135,10 +135,12 @@ function updatePlayPause(current_state) {
 	switch(current_state) {
 		case "paused":
 			play_pause_button.innerText = "+>";
+			navigator.mediaSession.playbackState = "paused";
 			break;
 
 		case "playing":
 			play_pause_button.innerText = "][";
+			navigator.mediaSession.playbackState = "playing";
 			break;
 
 		default:
@@ -154,6 +156,21 @@ function updateCurrentlyPlaying(playlist, song) {
 		return;
 	}
 
+	navigator.mediaSession.metadata = new MediaMetadata({
+		title: song.title,
+		artist: song.artist,
+		album: playlist.name,
+		artwork: [
+			{src: "icon.png", type: "image/png"},
+		]
+	});
+
+	navigator.mediaSession.setActionHandler("play", () => AudioManager.togglePlayPause());
+	navigator.mediaSession.setActionHandler("pause", () => AudioManager.togglePlayPause());
+	navigator.mediaSession.setActionHandler("previoustrack", () => { });
+	navigator.mediaSession.setActionHandler("nexttrack", () => AudioManager.next());
+	navigator.mediaSession.setActionHandler("seekto", (values) => AudioManager.seek(values.seekTime));
+
 	currently_playing_elem.innerText = playlist.name;
 	currently_playing_elem.title = playlist.name;
 	currently_playing_elem.onclick = () => {openFolder(playlist); return false;}
@@ -167,8 +184,13 @@ function updateCurrentlyPlaying(playlist, song) {
 	document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
 }
 
-function updateSeek(percent) {
+function updateSeek(percent, current_time) {
 	seekbar.style.background = `linear-gradient(to right, var(--text-colour) 0%, var(--text-colour) ${percent}%, var(--dock-background) ${percent}%, var(--dock-background) 100%)`;
+	navigator.mediaSession.setPositionState({
+		duration: AudioManager.getSong().duration,
+		playbackRate: 1,
+		position: current_time
+	});
 }
 
 try {
@@ -187,7 +209,7 @@ try {
 	play_pause_button.onclick = (e) => {AudioManager.togglePlayPause(); return false;}
 	AudioManager.bindPlayPause(updatePlayPause);
 
-	seekbar.onmousedown = (e) => {AudioManager.seek(e.clientX / window.innerWidth * 100); return false;}
+	seekbar.onmousedown = (e) => {AudioManager.seekPercent(e.clientX / window.innerWidth * 100); return false;}
 	AudioManager.bindTimeUpdate(updateSeek);
 
 	openFolder();

@@ -58,7 +58,7 @@ function AudioManager() {
 	_audio.onplay = () => _play_pause_callback(this.state());
 	_audio.onpause = () => _play_pause_callback(this.state());
 	_audio.onended = () => _playNext();
-	_audio.ontimeupdate = () => _time_update_callback(this.seek());
+	_audio.ontimeupdate = () => _time_update_callback(this.seekPercent(), this.seek());
 
 	this.getSong = () => {
 		if(_playlist_index >= 0) return _current_playlist.songs[_playlist_index];
@@ -81,6 +81,7 @@ function AudioManager() {
 		_audio.pause();
 		_audio.currentTime = 0;
 	};
+	this.next = () => _playNext();
 	this.repeat = (set_value) => {
 		if(set_value === undefined) return _repeat;
 		_repeat = set_value;
@@ -96,11 +97,17 @@ function AudioManager() {
 		_audio.volume = set_value/100;
 		return _audio.volume;
 	};
-	this.seek = (set_value) => {
+	this.seekPercent = (set_value) => {
 		const song = this.getSong();
 		const song_not_seekable = _audio.seekable.length && _audio.seekable.end(0) === 0;
 		if(set_value === undefined || song_not_seekable) return _audio.currentTime / song.duration * 100;
 		_audio.currentTime = set_value / 100 * song.duration;
+		return _audio.currentTime;
+	}
+	this.seek = (set_value) => {
+		const song_not_seekable = _audio.seekable.length && _audio.seekable.end(0) === 0;
+		if(set_value === undefined || song_not_seekable) return _audio.currentTime;
+		_audio.currentTime = set_value;
 		return _audio.currentTime;
 	}
 }
