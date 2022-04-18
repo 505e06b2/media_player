@@ -118,6 +118,11 @@ function openFolder(playlist) {
 			}
 		}
 	}
+
+	const currently_playing_song = Elements.find('#content .playing');
+	if(currently_playing_song) {
+		currently_playing_song.scrollIntoView({block: "center", inline: "center"});
+	}
 }
 
 function openFile(playlist, song = null) {
