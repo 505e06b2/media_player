@@ -18,8 +18,7 @@ function createBoxIndent(value, array) {
 function createListItem(name, onclickHandler = null, song = null) {
 	const plaintext = name.replace(/[└─├]/gs, "").trim();
 	const elem = Elements.create("a", {
-		innerText: name,
-		title: plaintext
+		innerText: name
 	});
 
 	if(onclickHandler) {
