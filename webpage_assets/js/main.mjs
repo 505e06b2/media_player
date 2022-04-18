@@ -1,5 +1,6 @@
 "use strict";
 
+import UnicodeMonospace from "./unicode_monospace.mjs";
 import Elements from "./elements.mjs";
 import Library from "./library.mjs";
 import AudioManager from "./audio_manager.mjs";
@@ -153,8 +154,8 @@ function updateCurrentlyPlaying(playlist, song) {
 		return;
 	}
 
-	currently_playing_elem.innerText = song.title;
-	currently_playing_elem.title = song.title;
+	currently_playing_elem.innerText = playlist.name;
+	currently_playing_elem.title = playlist.name;
 	currently_playing_elem.onclick = () => {openFolder(playlist); return false;}
 
 	const previous = Elements.find(`#content .playing`);
@@ -162,6 +163,8 @@ function updateCurrentlyPlaying(playlist, song) {
 
 	const current = Elements.find(`#content a[uri="${song.uri}"]`);
 	if(current) current.classList.add("playing");
+
+	document.title = UnicodeMonospace.convert(`${song.title} / ${playlist.name}`);
 }
 
 function updateSeek(percent) {
