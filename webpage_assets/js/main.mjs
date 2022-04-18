@@ -164,12 +164,7 @@ function updateCurrentlyPlaying(playlist, song) {
 			{src: "icon.png", type: "image/png"},
 		]
 	});
-
-	navigator.mediaSession.setActionHandler("play", () => AudioManager.togglePlayPause());
-	navigator.mediaSession.setActionHandler("pause", () => AudioManager.togglePlayPause());
-	navigator.mediaSession.setActionHandler("previoustrack", () => { });
-	navigator.mediaSession.setActionHandler("nexttrack", () => AudioManager.next());
-	navigator.mediaSession.setActionHandler("seekto", (values) => AudioManager.seek(values.seekTime));
+	navigator.mediaSession.playbackState = "playing";
 
 	currently_playing_elem.innerText = playlist.name;
 	currently_playing_elem.title = playlist.name;
@@ -187,9 +182,8 @@ function updateCurrentlyPlaying(playlist, song) {
 function updateSeek(percent, current_time) {
 	seekbar.style.background = `linear-gradient(to right, var(--text-colour) 0%, var(--text-colour) ${percent}%, var(--dock-background) ${percent}%, var(--dock-background) 100%)`;
 	navigator.mediaSession.setPositionState({
-		duration: AudioManager.getSong().duration,
-		playbackRate: 1,
-		position: current_time
+		position: current_time,
+		duration: AudioManager.getSong().duration
 	});
 }
 
@@ -211,6 +205,13 @@ try {
 
 	seekbar.onmousedown = (e) => {AudioManager.seekPercent(e.clientX / window.innerWidth * 100); return false;}
 	AudioManager.bindTimeUpdate(updateSeek);
+
+	navigator.mediaSession.setActionHandler("play", () => AudioManager.togglePlayPause());
+	navigator.mediaSession.setActionHandler("pause", () => AudioManager.togglePlayPause());
+	navigator.mediaSession.setActionHandler("stop", null);
+	navigator.mediaSession.setActionHandler("previoustrack", () => { });
+	navigator.mediaSession.setActionHandler("nexttrack", () => AudioManager.next());
+	navigator.mediaSession.setActionHandler("seekto", (values) => AudioManager.seek(values.seekTime));
 
 	openFolder();
 
