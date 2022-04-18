@@ -41,13 +41,13 @@ function createSongObject(filepath, song_data) {
 
 function listDirectories(...folder_path) {
 	return fs.readdirSync(path.join(...folder_path), {withFileTypes: true})
-		.filter(x => x.isDirectory())
+		.filter(x => x.isDirectory() || x.isSymbolicLink())
 		.map(x => x.name);
 }
 
 function listFiles(...folder_path) {
 	return fs.readdirSync(path.join(...folder_path), {withFileTypes: true})
-		.filter(x => x.isFile())
+		.filter(x => x.isFile() || x.isSymbolicLink())
 		.map(x => x.name);
 }
 
