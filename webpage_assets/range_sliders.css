@@ -2,6 +2,8 @@
 input[type="range"] {
 	position: relative;
     margin: 0px;
+	height: 100%;
+	width: 100%;
     -webkit-appearance: none;
     overflow: hidden;
 	outline: none;

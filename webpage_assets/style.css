@@ -104,18 +104,15 @@ a {
 }
 
 #bottom-dock > span {
-	display: block;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
 	flex: 1 1 100%;
 	text-align: center;
 	height: 100%;
-}
-
-#bottom-dock > span > * {
-	display: flex;
-	align-items: center;
-    justify-content: center;
-	height: 100%;
-	width: 100%;
+	overflow: hidden;
 }
 
 @media (orientation: portrait) {
@@ -129,11 +126,9 @@ a {
 }
 
 #bottom-dock #currently-playing {
+	white-space: nowrap;
 	overflow: hidden;
-	word-break: break-all;
-	max-width: 33vw;
-	min-width: 0px;
-	justify-content: left;
+	text-overflow: ellipsis;
 }
 
 .centre {
@@ -144,7 +139,7 @@ a {
 	left: 0px;
 	right: 0px;
 	align-items: center;
-    justify-content: center;
+	justify-content: center;
 	text-align: center;
 	word-break: break-word;
 }
