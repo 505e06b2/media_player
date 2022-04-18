@@ -97,8 +97,10 @@ function AudioManager() {
 		return _audio.volume;
 	};
 	this.seek = (set_value) => {
-		if(set_value === undefined) return _audio.currentTime / this.getSong().duration * 100;
-		_audio.currentTime = set_value / 100 * this.getSong().duration;
+		const song = this.getSong();
+		const song_not_seekable = _audio.seekable.length && _audio.seekable.end(0) === 0;
+		if(set_value === undefined || song_not_seekable) return _audio.currentTime / song.duration * 100;
+		_audio.currentTime = set_value / 100 * song.duration;
 		return _audio.currentTime;
 	}
 }
