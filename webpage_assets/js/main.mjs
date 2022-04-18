@@ -164,7 +164,7 @@ function updateCurrentlyPlaying(playlist, song) {
 	const current = Elements.find(`#content a[uri="${song.uri}"]`);
 	if(current) current.classList.add("playing");
 
-	document.title = UnicodeMonospace.convert(`${song.title} / ${playlist.name}`);
+	document.title = UnicodeMonospace.convert(`${song.title} +> ${playlist.name}`);
 }
 
 function updateSeek(percent) {
