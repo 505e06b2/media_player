@@ -203,6 +203,9 @@ try {
 	play_pause_button.onclick = (e) => {AudioManager.togglePlayPause(); return false;}
 	AudioManager.bindPlayPause(updatePlayPause);
 
+	Elements.find('#previous').onclick = (e) => {AudioManager.previous(); return false;}
+	Elements.find('#next').onclick = (e) => {AudioManager.next(); return false;}
+
 	seekbar.onmousedown = (e) => {AudioManager.seekPercent(e.clientX / window.innerWidth * 100); return false;}
 	AudioManager.bindTimeUpdate(updateSeek);
 

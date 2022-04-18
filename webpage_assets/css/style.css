@@ -115,6 +115,11 @@ a {
 	overflow: hidden;
 }
 
+#bottom-dock-centre a {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
 @media (orientation: portrait) {
 	#bottom-dock-centre, #bottom-dock-right {
 		display: none !important;

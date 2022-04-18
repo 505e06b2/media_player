@@ -21,16 +21,21 @@ function AudioManager() {
 	let _new_track_callback = () => null;
 	let _time_update_callback = () => null;
 
-	const _playNext = () => {
-		if(++_playlist_index >= _current_playlist.songs.length) {
-			if(_repeat !== Repeat.playlist) { //not tested
-				_playlist_index = -1;
-				_new_track_callback(null, null);
-				_play_pause_callback(State.stopped);
-				_time_update_callback(100.0);
-				return;
+	const _playNext = (go_back = false) => {
+		if(!_current_playlist) return;
+		if(go_back) {
+			if(--_playlist_index < 0) _playlist_index = _current_playlist.songs.length-1;
+		} else {
+			if(++_playlist_index >= _current_playlist.songs.length) {
+				if(_repeat !== Repeat.playlist) { //not tested
+					_playlist_index = -1;
+					_new_track_callback(null, null);
+					_play_pause_callback(State.stopped);
+					_time_update_callback(100.0);
+					return;
+				}
+				_playlist_index = 0;
 			}
-			_playlist_index = 0;
 		}
 		const song = this.getSong();
 		_audio.src = song.uri;
@@ -81,6 +86,7 @@ function AudioManager() {
 		_audio.pause();
 		_audio.currentTime = 0;
 	};
+	this.previous = () => _playNext(true);
 	this.next = () => _playNext();
 	this.repeat = (set_value) => {
 		if(set_value === undefined) return _repeat;
@@ -92,9 +98,9 @@ function AudioManager() {
 		}
 		return _repeat;
 	};
-	this.volume = (set_value) => {
-		if(set_value === undefined) return _audio.volume;
-		_audio.volume = set_value/100;
+	this.volume = (set_percent_value) => {
+		if(set_percent_value === undefined) return _audio.volume;
+		_audio.volume = 1 - Math.pow(10, -set_percent_value/100);
 		return _audio.volume;
 	};
 	this.seekPercent = (set_value) => {
