@@ -180,7 +180,7 @@ try {
 	play_pause_button.onclick = (e) => {AudioManager.togglePlayPause(); return false;}
 	AudioManager.bindPlayPause(updatePlayPause);
 
-	seekbar.onclick = (e) => {console.log(e); AudioManager.seek(e.clientX / window.innerWidth * 100); return false;}
+	seekbar.onclick = (e) => {AudioManager.seek(e.clientX / window.innerWidth * 100); return false;}
 	AudioManager.bindTimeUpdate(updateSeek);
 
 	openFolder();

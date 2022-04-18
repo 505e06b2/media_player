@@ -91,6 +91,7 @@ a {
 #seekbar {
 	position: fixed;
 	bottom: var(--dock-height);
+	cursor: pointer;
 	height: 3px;
 	width: 100vw;
 	border-top: 10px solid var(--background);
@@ -99,6 +100,7 @@ a {
 
 #seekbar:hover {
 	height: 20px;
+	border: none;
 }
 
 #bottom-dock > span {
