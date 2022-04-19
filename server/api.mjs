@@ -66,11 +66,17 @@ for(const artist of listDirectories(settings.music_folder)) {
 	for(const album of listDirectories(settings.music_folder, artist).sort(caseInsensitiveSort)) {
 		const album_songs = [];
 
+		const promises = [];
+
 		for(const song of listFiles(settings.music_folder, artist, album).filter(x => x !== "cover.jpg")) {
 			const path_suffix = path.join(artist, album, song);
-			const song_metadata = await metadata.parseFile(path.join(settings.music_folder, path_suffix));
-			album_songs.push(createSongObject(path.join(settings.music_uri, path_suffix), song_metadata));
+			promises.push((async () => {
+				const song_metadata = await metadata.parseFile(path.join(settings.music_folder, path_suffix));
+				return createSongObject(path.join(settings.music_uri, path_suffix), song_metadata);
+			})());
 		}
+
+		for(const x of promises) album_songs.push(await x);
 
 		album_songs.sort((a, b) => a.track > b.track ? 1 : -1);
 		const first_id = music["songs"].length;
