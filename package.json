@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/505e06b2/media_server.git"
+    "url": "https://github.com/505e06b2/media_player.git"
   },
-  "author": "",
+  "author": "505e06b2",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/505e06b2/media_server/issues"
+    "url": "https://github.com/505e06b2/media_player/issues"
   },
-  "homepage": "https://github.com/505e06b2/media_server#readme",
+  "homepage": "https://github.com/505e06b2/media_player#readme",
   "dependencies": {
     "music-metadata": "^7.12.3"
   }
