@@ -2,9 +2,9 @@
   "name": "media_player",
   "version": "1.0.0",
   "description": "",
-  "main": "main.mjs",
+  "main": "server/main.mjs",
   "scripts": {
-    "start": "node main.mjs"
+    "start": "node server/main.mjs"
   },
   "repository": {
     "type": "git",
