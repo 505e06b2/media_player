@@ -93,8 +93,9 @@ function UI(_library) {
 
 				case "album":
 					for(const song of playlist.songs) {
+						const track_prefx = song.track && song.track.toString().padStart(3) || "   ";
 						_content_container.append(_createListItem(
-							`${song.track.toString().padStart(3)} ${song.title}`,
+							`${track_prefx} ${song.title}`,
 							() => _openFile(playlist, song),
 							song
 						));
