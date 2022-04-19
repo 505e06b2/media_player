@@ -12,6 +12,8 @@ import * as metadata from "music-metadata";
 /*
 !! This does not allow playlists to be made, then files removed from the system as IDs are incremental!!
 !! This will also affect playlist when songs are added, as IDs may shift too !!
+
+the fix would be to use valid m3u files that use the link for each song instead of an ID
 */
 
 const music = {

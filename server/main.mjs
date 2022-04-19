@@ -11,9 +11,9 @@ import * as mime_types from "./mime_types.mjs";
 import * as api from "./api.mjs";
 
 http.createServer(async (request, response) => {
-	function sendResponse(status_code = 500, content_type = mime_types.plain_text, content = "Server Error") {
+	function sendResponse(status_code = 500, content_type = mime_types.plain_text, content = "Server Error", as_string = false) {
 		response.writeHead(status_code, {"content-type": content_type});
-		response.end(content, "binary");
+		response.end(content, as_string === true ? undefined :  "binary");
 	}
 
 	try {
@@ -23,7 +23,7 @@ http.createServer(async (request, response) => {
 			const endpoint = api[url.pathname.slice(settings.api_uri.length)];
 			if(endpoint) {
 				const content = await endpoint(url);
-				if(content) return sendResponse(200, mime_types.json, JSON.stringify(content));
+				if(content) return sendResponse(200, mime_types.json, JSON.stringify(content), true);
 				return sendResponse(500, mime_types.plain_text, "Invalid arguments");
 			}
 			return sendResponse(500, mime_types.plain_text, "Invalid endpoint");
