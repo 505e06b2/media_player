@@ -153,12 +153,10 @@ function UI(_library) {
 		switch(current_state) {
 			case "paused":
 				_play_pause_button.innerText = "+>";
-				navigator.mediaSession.playbackState = "paused";
 				break;
 
 			case "playing":
 				_play_pause_button.innerText = "][";
-				navigator.mediaSession.playbackState = "playing";
 				break;
 
 			default:
@@ -173,16 +171,6 @@ function UI(_library) {
 			_currently_playing_elem.onclick = () => false;
 			return;
 		}
-
-		navigator.mediaSession.metadata = new MediaMetadata({
-			title: song.title,
-			artist: song.artist,
-			album: playlist.name,
-			artwork: [
-				{src: "icon.png", type: "image/png"},
-			]
-		});
-		navigator.mediaSession.playbackState = "playing";
 
 		_currently_playing_elem.innerText = playlist.name;
 		_currently_playing_elem.title = playlist.name;
@@ -199,10 +187,6 @@ function UI(_library) {
 
 	this.updateSeek = (percent, current_time) => {
 		_seekbar.style.background = `linear-gradient(to right, var(--text-colour) 0%, var(--text-colour) ${percent}%, var(--dock-background) ${percent}%, var(--dock-background) 100%)`;
-		navigator.mediaSession.setPositionState({
-			position: current_time,
-			duration: AudioManager.getSong().duration
-		});
 	};
 
 	constructor();
