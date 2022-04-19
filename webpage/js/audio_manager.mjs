@@ -1,5 +1,7 @@
 "use strict";
 
+import MediaSessionManager from "./mediasession_manager.mjs";
+
 export const Repeat = {
 	none: "none",
 	playlist: "playlist",
@@ -21,6 +23,27 @@ function AudioManager() {
 	let _new_track_callback = () => null;
 	let _time_update_callback = () => null;
 
+	this.getSong = () => {
+		if(_playlist_index >= 0) return _current_playlist.songs[_playlist_index];
+		return null;
+	};
+
+	this.getPlaylist = () => _current_playlist;
+
+	this.setPlaylist = (playlist, song = null) => {
+		this.stop();
+		_audio.src = "";
+
+		_playlist_index = -1;
+		if(song) {
+			_playlist_index = playlist.songs.indexOf(song);
+			if(_playlist_index === -1) throw `"${song.title}" is not in ${playlist.name}`;
+			_playlist_index--;
+		}
+		_current_playlist = playlist;
+		_playNext();
+	};
+
 	const _playNext = (go_back = false) => {
 		if(!_current_playlist) return;
 		if(go_back) {
@@ -41,38 +64,16 @@ function AudioManager() {
 		_audio.src = song.uri;
 		_audio.play();
 		_new_track_callback(this.getPlaylist(), song);
-	}
-
-	this.setPlaylist = (playlist, song = null) => {
-		this.stop();
-		_audio.src = "";
-
-		_playlist_index = -1;
-		if(song) {
-			_playlist_index = playlist.songs.indexOf(song);
-			if(_playlist_index === -1) throw `"${song.title}" is not in ${playlist.name}`;
-			_playlist_index--;
-		}
-		_current_playlist = playlist;
-		_playNext();
 	};
 
 	this.bindTimeUpdate = (callback) => _time_update_callback = callback;
 	this.bindPlayPause = (callback) => _play_pause_callback = callback;
 	this.bindNewTrack = (callback) => _new_track_callback = callback;
+
 	_audio.onplay = () => _play_pause_callback(this.state());
 	_audio.onpause = () => _play_pause_callback(this.state());
 	_audio.onended = () => _playNext();
 	_audio.ontimeupdate = () => _time_update_callback(this.seekPercent(), this.seek());
-
-	this.getSong = () => {
-		if(_playlist_index >= 0) return _current_playlist.songs[_playlist_index];
-		return null;
-	}
-
-	this.getPlaylist = () => {
-		return _current_playlist;
-	}
 
 	this.state = () => _audio.paused ? State.paused : State.playing;
 	this.pause = () => _audio.pause();
@@ -86,8 +87,10 @@ function AudioManager() {
 		_audio.pause();
 		_audio.currentTime = 0;
 	};
+
 	this.previous = () => _playNext(true);
 	this.next = () => _playNext();
+
 	this.repeat = (set_value) => {
 		if(set_value === undefined) return _repeat;
 		_repeat = set_value;
@@ -98,24 +101,27 @@ function AudioManager() {
 		}
 		return _repeat;
 	};
+
 	this.volume = (set_percent_value) => {
 		if(set_percent_value === undefined) return _audio.volume;
 		_audio.volume = 1 - Math.pow(10, -set_percent_value/100);
 		return _audio.volume;
 	};
+
 	this.seekPercent = (set_value) => {
 		const song = this.getSong();
 		const song_not_seekable = _audio.seekable.length && _audio.seekable.end(0) === 0;
 		if(set_value === undefined || song_not_seekable) return _audio.currentTime / song.duration * 100;
 		_audio.currentTime = set_value / 100 * song.duration;
 		return _audio.currentTime;
-	}
+	};
+
 	this.seek = (set_value) => {
 		const song_not_seekable = _audio.seekable.length && _audio.seekable.end(0) === 0;
 		if(set_value === undefined || song_not_seekable) return _audio.currentTime;
 		_audio.currentTime = set_value;
 		return _audio.currentTime;
-	}
+	};
 }
 
 export default new AudioManager();

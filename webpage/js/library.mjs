@@ -53,7 +53,7 @@ export const Library = {
 					parent.children.push(playlist);
 				}
 			}
-		}
+		};
 
 		this.getTopLevelPlaylists = () => _playlists.filter(x => !x.parent);
 

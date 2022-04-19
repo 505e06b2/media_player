@@ -8,18 +8,11 @@ import UI from "./ui.mjs";
 try {
 	const library = new Library.Library(await(await fetch("api/getLibrary")).json());
 
-	UI.initialise(library);
+	const ui = new UI(library);
 
-	AudioManager.bindNewTrack(UI.updateCurrentlyPlaying);
-	AudioManager.bindPlayPause(UI.updatePlayPause);
-	AudioManager.bindTimeUpdate(UI.updateSeek);
-
-	navigator.mediaSession.setActionHandler("play", () => AudioManager.togglePlayPause());
-	navigator.mediaSession.setActionHandler("pause", () => AudioManager.togglePlayPause());
-	navigator.mediaSession.setActionHandler("stop", null);
-	navigator.mediaSession.setActionHandler("previoustrack", () => { });
-	navigator.mediaSession.setActionHandler("nexttrack", () => AudioManager.next());
-	navigator.mediaSession.setActionHandler("seekto", (values) => AudioManager.seek(values.seekTime));
+	AudioManager.bindNewTrack(ui.updateCurrentlyPlaying);
+	AudioManager.bindPlayPause(ui.updatePlayPause);
+	AudioManager.bindTimeUpdate(ui.updateSeek);
 
 	Elements.find('#loading').style.display = "none";
 	Elements.find('#page-container').style.display = "block";

@@ -5,8 +5,7 @@ import Library from "./library.mjs";
 import Elements from "./elements.mjs";
 import AudioManager from "./audio_manager.mjs";
 
-function UI() {
-	let _library;
+function UI(_library) {
 	let _content_container;
 	let _top_dock_path;
 	let _play_pause_button;
@@ -51,7 +50,7 @@ function UI() {
 	const _openFile = (playlist, song = null) => {
 		if(!song) song = playlist.songs[0];
 		AudioManager.setPlaylist(playlist, song);
-	}
+	};
 
 	const _openFolder = (playlist) => {
 		_content_container.innerHTML = "";
@@ -132,8 +131,7 @@ function UI() {
 		}
 	};
 
-	this.initialise = (library) => {
-		_library = library;
+	const constructor = () => {
 		_content_container = Elements.find('#content');
 		_currently_playing_elem = Elements.find('#currently-playing');
 		_play_pause_button = Elements.find('#play-pause');
@@ -166,7 +164,7 @@ function UI() {
 			default:
 				_play_pause_button.innerText = "[]";
 		}
-	}
+	};
 
 	this.updateCurrentlyPlaying = (playlist, song) => {
 		if(playlist === null && song === null) { //not tested
@@ -197,7 +195,7 @@ function UI() {
 		if(current) current.classList.add("playing");
 
 		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
-	}
+	};
 
 	this.updateSeek = (percent, current_time) => {
 		_seekbar.style.background = `linear-gradient(to right, var(--text-colour) 0%, var(--text-colour) ${percent}%, var(--dock-background) ${percent}%, var(--dock-background) 100%)`;
@@ -205,7 +203,9 @@ function UI() {
 			position: current_time,
 			duration: AudioManager.getSong().duration
 		});
-	}
+	};
+
+	constructor();
 }
 
-export default new UI();
+export default UI;
