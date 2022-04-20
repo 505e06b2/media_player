@@ -6,7 +6,10 @@ function MediaSessionManager() {
 
 		this.setPlaybackState = (state) => navigator.mediaSession.playbackState = state;
 
-		this.setPositionState = (current_time = 0, duration = 0) => {
+		this.setPositionState = (current_time = NaN, duration = NaN) => {
+			if(isNaN(current_time) || isNaN(duration)) return;
+			if(isFinite(current_time) !== true || isFinite(duration) !== true) return;
+			return; //just too brittle
 			navigator.mediaSession.setPositionState({
 				position: current_time,
 				playbackRate: 1,
@@ -20,7 +23,9 @@ function MediaSessionManager() {
 			navigator.mediaSession.metadata.album = playlist.name;
 		};
 
-		navigator.mediaSession.metadata = new MediaMetadata({});
+		navigator.mediaSession.metadata = new MediaMetadata({
+			artwork: [{src: "icon.png"}]
+		});
 	} else {
 		this.bind = () => undefined;
 		this.setPlaybackState = () => undefined;
