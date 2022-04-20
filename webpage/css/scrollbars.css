@@ -1,11 +1,11 @@
-::-webkit-scrollbar {
-	width: 3px;
+body::-webkit-scrollbar {
+	width: 10px;
 }
 
-::-webkit-scrollbar-track {
+body::-webkit-scrollbar-track {
 	background: var(--dock-background);
 }
 
-::-webkit-scrollbar-thumb {
+body::-webkit-scrollbar-thumb {
 	background: var(--text-colour);
 }
