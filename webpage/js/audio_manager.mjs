@@ -79,7 +79,7 @@ function AudioManager() {
 		_play_pause_callback(state);
 	};
 	_audio.ontimeupdate = () => {
-		MediaSessionManager.setPositionState(_audio);
+		MediaSessionManager.setPositionState(_audio, this.getSong().duration);
 		_time_update_callback(this.seekPercent(), this.seek());
 	};
 
