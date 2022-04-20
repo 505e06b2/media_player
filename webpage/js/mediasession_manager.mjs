@@ -6,9 +6,9 @@ function MediaSessionManager() {
 
 		this.setPlaybackState = (state) => navigator.mediaSession.playbackState = state;
 
-		this.setPositionState = (audio, duration = 0) => {
+		this.setPositionState = (current_time = 0, duration = 0) => {
 			navigator.mediaSession.setPositionState({
-				position: audio.currentTime,
+				position: current_time,
 				playbackRate: audio.playbackRate,
 				duration: duration
 			});
