@@ -31,7 +31,7 @@ function AudioManager() {
 	this.getPlaylist = () => _current_playlist;
 
 	this.setPlaylist = (playlist, song = null) => {
-		this.stop();
+		this.pause();
 
 		_playlist_index = -1;
 		if(song) {
@@ -43,13 +43,13 @@ function AudioManager() {
 		_playNext();
 	};
 
-	const _playNext = (go_back = false) => {
+	const _playNext = async (go_back = false) => {
 		if(!_current_playlist) return;
 		if(go_back) {
 			if(--_playlist_index < 0) _playlist_index = _current_playlist.songs.length-1;
 		} else {
 			if(++_playlist_index >= _current_playlist.songs.length) {
-				if(_repeat !== Repeat.playlist) { //not tested
+				if(_repeat !== Repeat.playlist) { //not tested - move to onended?
 					_playlist_index = -1;
 					_new_track_callback(null, null);
 					_play_pause_callback(State.stopped);
@@ -60,43 +60,51 @@ function AudioManager() {
 			}
 		}
 		const song = this.getSong();
-		const playlist = this.getPlaylist();
 		_audio.src = song.uri;
-		_audio.play();
-		MediaSessionManager.setMetadata(playlist, song);
-		MediaSessionManager.setPositionState(0, song.duration);
-		_new_track_callback(playlist, song);
+		await _audio.play();
+		MediaSessionManager.setMetadata(_current_playlist, song);
+		MediaSessionManager.setPositionState(0, song.duration, 1);
+		MediaSessionManager.setPlaybackState(State.playing);
+		_bindMediaSessionCallbacks();
+		_new_track_callback(_current_playlist, song);
 	};
+
+	const _bindMediaSessionCallbacks = () => {
+		MediaSessionManager.bind("play", this.play);
+		MediaSessionManager.bind("pause", this.pause);
+		MediaSessionManager.bind("stop", this.stop);
+		MediaSessionManager.bind("previoustrack", this.previous);
+		MediaSessionManager.bind("nexttrack", this.next);
+		MediaSessionManager.bind("seekto", (values) => this.seek(values.seekTime));
+	}
 
 	this.bindTimeUpdate = (callback) => _time_update_callback = callback;
 	this.bindPlayPause = (callback) => _play_pause_callback = callback;
 	this.bindNewTrack = (callback) => _new_track_callback = callback;
 
-	_audio.onended = () => _playNext();
+	_audio.onended = async () => await _playNext();
 	_audio.onplay = _audio.onpause = () => {
 		const state = this.state();
 		MediaSessionManager.setPlaybackState(state);
 		_play_pause_callback(state);
 	};
-	_audio.ontimeupdate = () => {
-		_time_update_callback(this.seekPercent(), this.seek());
-	};
+	_audio.ontimeupdate = () => _time_update_callback(this.seekPercent(), this.seek());
 
 	this.state = () => _audio.paused ? State.paused : State.playing;
 	this.pause = () => _audio.pause();
-	this.play = () => _audio.play();
-	this.togglePlayPause = () => {
+	this.play = async () => await _audio.play();
+	this.togglePlayPause = async () => {
 		if(!_audio.src) return;
 		const state = this.state();
-		state === State.playing ? this.pause() : this.play();
+		state === State.playing ? this.pause() : await this.play();
 	};
 	this.stop = () => {
 		_audio.pause();
 		_audio.currentTime = 0;
 	};
 
-	this.previous = () => _playNext(true);
-	this.next = () => _playNext();
+	this.previous = async () => await _playNext(true);
+	this.next = async () => await _playNext();
 
 	this.repeat = (set_value) => {
 		if(set_value === undefined) return _repeat;
@@ -120,7 +128,7 @@ function AudioManager() {
 		const song_not_seekable = _audio.seekable.length && _audio.seekable.end(0) === 0;
 		if(set_value === undefined || song_not_seekable) return _audio.currentTime / song.duration * 100;
 		_audio.currentTime = set_value / 100 * song.duration;
-		MediaSessionManager.setPositionState(_audio.currentTime, _audio.duration);
+		MediaSessionManager.setPositionState(_audio.currentTime, _audio.duration, _audio.playbackRate);
 		return _audio.currentTime;
 	};
 
@@ -128,16 +136,9 @@ function AudioManager() {
 		const song_not_seekable = _audio.seekable.length && _audio.seekable.end(0) === 0;
 		if(set_value === undefined || song_not_seekable) return _audio.currentTime;
 		_audio.currentTime = set_value;
-		MediaSessionManager.setPositionState(set_value, _audio.duration);
+		MediaSessionManager.setPositionState(set_value, _audio.duration, _audio.playbackRate);
 		return _audio.currentTime;
 	};
-
-	MediaSessionManager.bind("play", () => this.play());
-	MediaSessionManager.bind("pause", () => this.pause());
-	MediaSessionManager.bind("stop", null);
-	MediaSessionManager.bind("previoustrack", () => this.previous());
-	MediaSessionManager.bind("nexttrack", () => this.next());
-	MediaSessionManager.bind("seekto", (values) => this.seek(values.seekTime));
 }
 
 export default new AudioManager();
