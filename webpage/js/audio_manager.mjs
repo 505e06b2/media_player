@@ -75,7 +75,7 @@ function AudioManager() {
 	_audio.onended = () => _playNext();
 	_audio.onplay = _audio.onpause = () => {
 		const state = this.state();
-		MediaSessionManager.setPlaybackState(state);
+		//MediaSessionManager.setPlaybackState(state);
 		_play_pause_callback(state);
 	};
 	_audio.ontimeupdate = () => {
