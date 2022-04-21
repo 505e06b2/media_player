@@ -28,7 +28,7 @@ function UI(_library) {
 		});
 
 		if(onclickHandler) {
-			elem.href = `#${plaintext}`;
+			elem.href = currently_playing.song ? currently_playing.song.uri : `#${plaintext}`;
 			elem.onclick = (e) => {onclickHandler(); return false;}
 		}
 
