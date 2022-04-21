@@ -26,6 +26,7 @@ function createSongObject(filepath, song_data) {
 		album: song_data.common.album,
 		title: song_data.common.title,
 		track: song_data.common.track.no,
+		disk: song_data.common.disk.no,
 		year: song_data.common.year,
 		duration: song_data.format.duration,
 		uri: filepath
@@ -46,6 +47,23 @@ function listFiles(...folder_path) {
 
 function caseInsensitiveSort(a, b) {
 	return a.localeCompare(b, "en", {sensitivity: "base"});
+}
+
+function sortAlbumTrack(a, b) {
+	//disk number
+	const a_disk_number = a.disk || Infinity;
+	const b_disk_number = b.disk || Infinity;
+	if(a_disk_number === b_disk_number) {
+		//track number
+		const a_track_number = a.track || Infinity;
+		const b_track_number = b.track || Infinity;
+		if(a_track_number === b_track_number) {
+			//alphabetical
+			return caseInsensitiveSort(a.title, b.title);
+		}
+		return a_track_number - b_track_number;
+	}
+	return a_disk_number - b_disk_number;
 }
 
 async function generateLibraryCache(library_folder, library_uri) {
@@ -72,7 +90,7 @@ async function generateLibraryCache(library_folder, library_uri) {
 
 			for(const x of promises) album_songs.push(await x);
 
-			album_songs.sort((a, b) => a.track > b.track ? 1 : -1);
+			album_songs.sort(sortAlbumTrack);
 			const first_id = library["songs"].length;
 			library["songs"].push(...album_songs);
 			const album_song_ids = Array.from(library["songs"].keys()).slice(first_id);
