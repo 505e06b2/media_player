@@ -14,6 +14,27 @@ try {
 	AudioManager.bindPlayPause(ui.updatePlayPause);
 	AudioManager.bindTimeUpdate(ui.updateSeek);
 
+	window.onkeydown = (e) => {
+		switch(e.key) {
+			case "j":
+				AudioManager.previous();
+				break;
+
+			case " ":
+			case "k": //like Youtube
+				AudioManager.togglePlayPause();
+				break;
+
+			case "l":
+				AudioManager.next();
+				break;
+
+			default:
+				return;
+		}
+		e.preventDefault();
+	};
+
 	Elements.find('#loading').style.display = "none";
 	Elements.find('#page-container').style.display = "block";
 } catch(e) {
