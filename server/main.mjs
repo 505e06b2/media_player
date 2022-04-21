@@ -10,10 +10,56 @@ import * as settings from "../settings.mjs";
 import * as mime_types from "./mime_types.mjs";
 import * as api from "./api.mjs";
 
+function parseRange(range_header, data_length) {
+	const range_prefix = "bytes=";
+
+	if(!range_header) return; //no header
+	if(!range_header.startsWith(range_prefix)) return; //unit incorrect
+	if(range_header.includes(",")) return; //given multiple ranges
+
+	//console.log("range header", range_header);
+
+	try {
+		let [start, end] = range_header
+			.slice(range_prefix.length)
+			.split("-")
+			.map(x => parseInt(x, 10));
+
+		if(isNaN(start) && isNaN(end)) return; //invalid range "-"
+		if(isNaN(start)) start = 0;
+		if(isNaN(end)) end = data_length-1; //zero-index
+		if(start >= end) return;
+
+		return {
+			start: start,
+			end: end
+		};
+
+	} catch(e) {
+		console.error(`Failed to parse range header: ${range_header}\n`, e);
+	}
+}
+
 http.createServer(async (request, response) => {
-	function sendResponse(status_code = 500, content_type = mime_types.plain_text, content = "Server Error", as_string = false) {
-		response.writeHead(status_code, {"content-type": content_type});
-		response.end(content, as_string === true ? undefined :  "binary");
+	function sendBinaryResponse(status_code = 500, content_type = mime_types.plain_text, content = null, extra_headers = {}) {
+		const headers = Object.assign({
+			"content-type": content_type,
+			"accept-ranges": "bytes",
+			"content-length": content.length
+		}, extra_headers);
+
+		response.writeHead(status_code, headers);
+		response.end(content, "binary");
+	}
+
+	function sendTextResponse(status_code = 500, content_type = mime_types.plain_text, content = "Server Error") {
+		const headers = {
+			"content-type": content_type,
+			"accept-ranges": "bytes",
+			"content-length": Buffer.byteLength(content, "utf8")
+		};
+		response.writeHead(status_code, headers);
+		response.end(content);
 	}
 
 	try {
@@ -24,36 +70,43 @@ http.createServer(async (request, response) => {
 			const endpoint = api[function_name];
 			if(endpoint) {
 				const content = await endpoint(url);
-				if(content) return sendResponse(200, mime_types.json, JSON.stringify(content), true);
-				return sendResponse(500, mime_types.plain_text, "Invalid arguments");
+				if(content) return sendTextResponse(200, mime_types.json, JSON.stringify(content), true);
+				return sendTextResponse(500, mime_types.plain_text, "Invalid arguments");
 			}
-			return sendResponse(500, mime_types.plain_text, "Invalid endpoint");
+			return sendTextResponse(500, mime_types.plain_text, "Invalid endpoint");
 		}
 
 		//send file
 		let filename = path.join(settings.webpage_assets_folder, decodeURI(url.pathname));
 		if(filename.length < process.cwd()) { //probably not going to get hit, but a precaution (even if it's a poor one)
-			return sendResponse(400, mime_types.plain_text, "Invalid path");
+			return sendTextResponse(400, mime_types.plain_text, "Invalid path");
 		}
 
 		try {
 			if(fs.statSync(filename).isDirectory()) filename = path.join(filename, "index.html");
 			fs.accessSync(filename, fs.constants.R_OK);
 		} catch {
-			return sendResponse(404, mime_types.plain_text, "Not found");
+			return sendTextResponse(404, mime_types.plain_text, "Not found");
 		}
 
-		fs.readFile(filename, "binary", (error, data) => {
+		fs.readFile(filename, (error, data) => {
 			if(error) {
 				console.log(error.message);
-				return sendResponse(500, mime_types.plain_text, `Error: ${error.code} - check the log`);
+				return sendTextResponse(500, mime_types.plain_text, `Error: ${error.code} - check the log`);
 			}
 
-			return sendResponse(200, mime_types.getFromFilename(filename), data);
+			const range_data = parseRange(request.headers.range, data.length);
+			if(range_data) {
+				const sliced_data = data.subarray(range_data.start, range_data.end);
+				return sendBinaryResponse(206, mime_types.getFromFilename(filename), sliced_data, {
+					"content-range": `bytes ${range_data.start}-${range_data.end}/${data.length}`,
+				});
+			}
+			return sendBinaryResponse(200, mime_types.getFromFilename(filename), data);
 		});
 
 	} catch(e) {
 		console.error("Unhandled exception:", e);
-		return sendResponse();
+		return sendTextResponse();
 	}
 }).listen(settings.port);
