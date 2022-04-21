@@ -19,8 +19,9 @@ http.createServer(async (request, response) => {
 	try {
 		const url = new URL(request.url, `http://${request.headers.host}`);
 
-		if(url.pathname.startsWith(settings.api_uri)) {
-			const endpoint = api[url.pathname.slice(settings.api_uri.length)];
+		if(url.pathname.startsWith(settings.api_uri) && url.pathname.endsWith(settings.api_suffix)) {
+			const function_name = url.pathname.slice(settings.api_uri.length, -settings.api_suffix.length);
+			const endpoint = api[function_name];
 			if(endpoint) {
 				const content = await endpoint(url);
 				if(content) return sendResponse(200, mime_types.json, JSON.stringify(content), true);

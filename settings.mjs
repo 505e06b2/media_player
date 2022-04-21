@@ -4,6 +4,7 @@ import path from "path";
 
 export const port = 5500;
 export const api_uri = "/api/";
+export const api_suffix = ".json";
 export const music_uri = "/music/";
 
 export const webpage_assets_folder = path.resolve("./webpage");
