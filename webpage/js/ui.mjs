@@ -122,7 +122,11 @@ function UI(_library) {
 		} else { //list top level playlists, with children - orphaned and double-nested (Parent->Child->Child) playlists will not appear
 			const top_level = _library.getTopLevelPlaylists();
 			for(const playlist of top_level) {
-				_content_container.append(_createListItem(playlist.name, () => _openFolder(playlist)));
+				_content_container.append(_createListItem(
+					playlist.name,
+					() => _openFolder(playlist),
+					{playlist: playlist}
+				));
 				for(const child of playlist.children) {
 					const indent = _createBoxIndent(child, playlist.children);
 					_content_container.append(_createListItem(
