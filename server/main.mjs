@@ -82,9 +82,13 @@ http.createServer(async (request, response) => {
 			return sendTextResponse(400, mime_types.plain_text, "Invalid path");
 		}
 
+		let file_stat;
 		try {
-			if(fs.statSync(filename).isDirectory()) filename = path.join(filename, "index.html");
-			fs.accessSync(filename, fs.constants.R_OK);
+			file_stat = fs.statSync(filename);
+			if(file_stat.isDirectory()) {
+				filename = path.join(filename, "index.html");
+				file_stat = fs.statSync(filename);
+			}
 		} catch {
 			return sendTextResponse(404, mime_types.plain_text, "Not found");
 		}
@@ -100,9 +104,12 @@ http.createServer(async (request, response) => {
 				const sliced_data = data.subarray(range_data.start, range_data.end);
 				return sendBinaryResponse(206, mime_types.getFromFilename(filename), sliced_data, {
 					"content-range": `bytes ${range_data.start}-${range_data.end}/${data.length}`,
+					"last-modified": (new Date(file_stat.mtime)).toUTCString()
 				});
 			}
-			return sendBinaryResponse(200, mime_types.getFromFilename(filename), data);
+			return sendBinaryResponse(200, mime_types.getFromFilename(filename), data, {
+				"last-modified": (new Date(file_stat.mtime)).toUTCString()
+			});
 		});
 
 	} catch(e) {
