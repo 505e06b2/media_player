@@ -6,7 +6,7 @@ import http from "http";
 import fs from "fs";
 import path from "path";
 
-import * as settings from "./settings.mjs";
+import * as settings from "../settings.mjs";
 import * as mime_types from "./mime_types.mjs";
 import * as api from "./api.mjs";
 

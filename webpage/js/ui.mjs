@@ -32,7 +32,7 @@ function UI(_library) {
 			elem.onclick = (e) => {onclickHandler(); return false;}
 		}
 
-		elem.setAttribute("overlay-text", name);
+		elem.setAttribute("overlay-text", name); //for use with .playing::after
 
 		if(currently_playing.song) {
 			elem.setAttribute("uri", currently_playing.song.uri);

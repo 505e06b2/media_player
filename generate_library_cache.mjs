@@ -1,7 +1,11 @@
+#!/usr/bin/env nodejs
+
 "use strict";
 
 import fs from "fs";
 import path from "path";
+import url from "url";
+import * as settings from "./settings.mjs";
 import * as metadata from "music-metadata";
 
 //musicbrainz picard tagged files expected
@@ -66,25 +70,25 @@ function sortAlbumTrack(a, b) {
 	return a_disk_number - b_disk_number;
 }
 
-async function generateLibraryCache(library_folder, library_uri) {
+async function generateLibraryCache() {
 	const library = {
 		playlists: [],
 		songs: []
 	};
 
-	for(const artist of listDirectories(library_folder)) {
+	for(const artist of listDirectories(settings.music_folder)) {
 		const artist_song_ids = [];
 		const artist_album_playlists = [];
-		for(const album of listDirectories(library_folder, artist).sort(caseInsensitiveSort)) {
+		for(const album of listDirectories(settings.music_folder, artist).sort(caseInsensitiveSort)) {
 			const album_songs = [];
 
 			const promises = [];
 
-			for(const song of listFiles(library_folder, artist, album).filter(x => x !== "cover.jpg")) {
+			for(const song of listFiles(settings.music_folder, artist, album).filter(x => x !== "cover.jpg")) {
 				const path_suffix = path.join(artist, album, song);
 				promises.push((async () => {
-					const song_metadata = await metadata.parseFile(path.join(library_folder, path_suffix));
-					return createSongObject(path.join(library_uri, path_suffix), song_metadata);
+					const song_metadata = await metadata.parseFile(path.join(settings.music_folder, path_suffix));
+					return createSongObject(path.join(settings.music_uri, path_suffix), song_metadata);
 				})());
 			}
 
@@ -110,6 +114,10 @@ async function generateLibraryCache(library_folder, library_uri) {
 	}
 
 	return library;
+}
+
+if(import.meta.url === url.pathToFileURL(process.argv[1]).href) {
+	console.log(JSON.stringify(await generateLibraryCache()));
 }
 
 export default generateLibraryCache;
