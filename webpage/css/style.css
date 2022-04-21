@@ -69,6 +69,8 @@ a {
 	padding-bottom: 10px;
 	word-break: break-word;
 	white-space: pre-wrap;
+	text-indent: -62px;
+	padding-left: 62px;
 }
 
 #content .playing {
@@ -87,6 +89,8 @@ a {
 	right: 0px;
 	top: 0px;
 	bottom: 0px;
+	text-indent: -62px;
+	padding-left: 62px;
 }
 
 #bottom-dock {
