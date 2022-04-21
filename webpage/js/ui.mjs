@@ -12,6 +12,11 @@ function UI(_library) {
 	let _currently_playing_elem;
 	let _seekbar;
 
+	const list_item_types = {
+		playlist: "playlist",
+		song: "song"
+	};
+
 	const _createBoxIndent = (value, array) => {
 		return (value === array[array.length-1] ? "└" : "├") + "── ";
 	};
@@ -31,6 +36,7 @@ function UI(_library) {
 
 		if(currently_playing.song) {
 			elem.setAttribute("uri", currently_playing.song.uri);
+			elem.setAttribute("type", list_item_types.song);
 			const playlist_check = currently_playing.playlist && currently_playing.playlist === AudioManager.getPlaylist();
 			if(playlist_check && currently_playing.song === AudioManager.getSong()) {
 				elem.classList.add("playing");
@@ -38,6 +44,7 @@ function UI(_library) {
 		} else if(currently_playing.playlist) {
 			if(currently_playing.playlist === AudioManager.getPlaylist()) {
 				elem.classList.add("playing");
+				elem.setAttribute("type", list_item_types.playlist);
 			}
 		}
 
@@ -162,7 +169,7 @@ function UI(_library) {
 		_openFolder();
 	};
 
-	this.updatePlayPause = (current_state) => {
+	this.updatePlayPause = async (current_state) => {
 		switch(current_state) {
 			case "paused":
 				_play_pause_button.innerText = "+>";
@@ -177,7 +184,7 @@ function UI(_library) {
 		}
 	};
 
-	this.updateCurrentlyPlaying = (playlist, song) => {
+	this.updateCurrentlyPlaying = async (playlist, song) => {
 		if(playlist === null && song === null) { //not tested
 			_currently_playing_elem.innerText = "nothing playing";
 			_currently_playing_elem.title = _currently_playing_elem.innerText;
@@ -185,20 +192,22 @@ function UI(_library) {
 			return;
 		}
 
-		_currently_playing_elem.innerText = playlist.name;
+		_currently_playing_elem.innerText = song.title;
 		_currently_playing_elem.title = playlist.name;
 		_currently_playing_elem.onclick = () => {_openFolder(playlist); return false;}
 
+		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
+
 		const previous = Elements.find(`#content .playing`);
+		if(previous && previous.getAttribute("type") !== list_item_types.song) return;
 		if(previous) previous.classList.remove("playing");
+
 
 		const current = Elements.find(`#content a[uri="${song.uri}"]`);
 		if(current) current.classList.add("playing");
-
-		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
 	};
 
-	this.updateSeek = (percent, current_time) => {
+	this.updateSeek = async (percent, current_time) => {
 		_seekbar.style.background = `linear-gradient(to right, var(--text-colour) 0%, var(--text-colour) ${percent}%, var(--dock-background) ${percent}%, var(--dock-background) 100%)`;
 	};
 
