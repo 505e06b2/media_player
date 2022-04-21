@@ -16,7 +16,6 @@ export const State = {
 
 function AudioManager() {
 	const _audio = new Audio();
-	document.head.append(_audio); //give access to userscripts
 	let _current_playlist = null; //Library.Playlist
 	let _playlist_index = -1;
 	let _repeat = Repeat.playlist;
