@@ -16,7 +16,7 @@ function UI(_library) {
 		return (value === array[array.length-1] ? "└" : "├") + "── ";
 	};
 
-	const _createListItem = (name, onclickHandler = null, song = null) => {
+	const _createListItem = (name, onclickHandler = null, currently_playing = {song: null, playlist: null}) => {
 		const plaintext = name.replace(/[└─├]/gs, "").trim();
 		const elem = Elements.create("a", {
 			innerText: name
@@ -27,10 +27,16 @@ function UI(_library) {
 			elem.onclick = (e) => {onclickHandler(); return false;}
 		}
 
-		if(song) {
-			elem.setAttribute("overlay-text", name);
-			elem.setAttribute("uri", song.uri);
-			if(song === AudioManager.getSong()) {
+		elem.setAttribute("overlay-text", name);
+
+		if(currently_playing.song) {
+			elem.setAttribute("uri", currently_playing.song.uri);
+			const playlist_check = currently_playing.playlist && currently_playing.playlist === AudioManager.getPlaylist();
+			if(playlist_check && currently_playing.song === AudioManager.getSong()) {
+				elem.classList.add("playing");
+			}
+		} else if(currently_playing.playlist) {
+			if(currently_playing.playlist === AudioManager.getPlaylist()) {
 				elem.classList.add("playing");
 			}
 		}
@@ -70,13 +76,14 @@ function UI(_library) {
 			switch(playlist.type) {
 				case "artist":
 					if(playlist.children.length) {
-						_content_container.append(_createListItem("child_playlists"));
+						_content_container.append(_createListItem("playlists"));
 						for(const child_playlist of playlist.children) {
 							const indent = _createBoxIndent(child_playlist, playlist.children);
 							_content_container.append(_createListItem(
 								`${indent}${child_playlist.name}`,
-								() => _openFolder(child_playlist))
-							);
+								() => _openFolder(child_playlist),
+								{playlist: child_playlist}
+							));
 						}
 					}
 
@@ -86,7 +93,7 @@ function UI(_library) {
 						_content_container.append(_createListItem(
 							`${indent}${song.title}`,
 							() => _openFile(playlist, song),
-							song
+							{song: song, playlist: playlist}
 						));
 					}
 					break;
@@ -97,7 +104,7 @@ function UI(_library) {
 						_content_container.append(_createListItem(
 							`${track_prefx} ${song.title}`,
 							() => _openFile(playlist, song),
-							song
+							{song: song, playlist: playlist}
 						));
 					}
 					break;
@@ -107,7 +114,7 @@ function UI(_library) {
 						_content_container.append(_createListItem(
 							song.title,
 							() => _openFile(playlist, song),
-							song
+							{song: song, playlist: playlist}
 						));
 					}
 			}
@@ -120,8 +127,9 @@ function UI(_library) {
 					const indent = _createBoxIndent(child, playlist.children);
 					_content_container.append(_createListItem(
 						`${indent}${child.name}`,
-						() => _openFolder(child))
-					);
+						() => _openFolder(child),
+						{playlist: child}
+					));
 				}
 			}
 		}
