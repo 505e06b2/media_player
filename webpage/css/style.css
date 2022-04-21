@@ -57,6 +57,12 @@ a {
 	margin-right: 20px;
 }
 
+@media (orientation: portrait) {
+	#content {
+		margin-bottom: calc(var(--dock-height) * 2 + 10px + 20px); /*seekbar is 20px*/
+	}
+}
+
 #content.list a {
 	display: block;
 	padding-top: 10px;
@@ -99,6 +105,14 @@ a {
 	background: transparent;
 }
 
+@media (orientation: portrait) {
+	#seekbar {
+		height: 20px;
+		border: none;
+		bottom: calc(var(--dock-height) * 2);
+	}
+}
+
 #seekbar:hover {
 	height: 20px;
 	border: none;
@@ -126,12 +140,16 @@ a {
 }
 
 @media (orientation: portrait) {
-	#bottom-dock-centre, #bottom-dock-right {
-		display: none !important;
+	#bottom-dock > span {
+		max-width: 100vw !important;
 	}
 
-	#bottom-dock #currently-playing {
-		max-width: 100vw !important;
+	#bottom-dock {
+		flex-direction: column-reverse;
+	}
+
+	#bottom-dock-right {
+		display: none !important;
 	}
 }
 
@@ -161,4 +179,10 @@ a {
 	right: 0px;
 	background: var(--dock-background);
 	align-items: center;
+}
+
+@media (orientation: portrait) {
+	#bottom-dock {
+		height: calc(var(--dock-height) * 2);
+	}
 }
