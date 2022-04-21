@@ -101,7 +101,7 @@ http.createServer(async (request, response) => {
 
 			const range_data = parseRange(request.headers.range, data.length);
 			if(range_data) {
-				const sliced_data = data.subarray(range_data.start, range_data.end);
+				const sliced_data = data.subarray(range_data.start, range_data.end+1); //zero indexed, to one indexed
 				return sendBinaryResponse(206, mime_types.getFromFilename(filename), sliced_data, {
 					"content-range": `bytes ${range_data.start}-${range_data.end}/${data.length}`,
 					"last-modified": (new Date(file_stat.mtime)).toUTCString()
