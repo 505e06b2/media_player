@@ -201,9 +201,12 @@ function UI(_library) {
 		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
 
 		const previous = Elements.find(`#content .playing`);
-		if(previous && previous.getAttribute("type") !== list_item_types.song) return;
-		if(previous) previous.classList.remove("playing");
-
+		if(previous) {
+			const is_playlist = previous.getAttribute("type") === list_item_types.playlist
+			const playlist_is_playing = previous.innerHTML.endsWith(playlist.name);
+			if(is_playlist && playlist_is_playing)return;
+			previous.classList.remove("playing");
+		}
 
 		const current = Elements.find(`#content a[uri="${song.uri}"]`);
 		if(current) current.classList.add("playing");
