@@ -16,6 +16,7 @@ export const State = {
 
 function AudioManager() {
 	const _audio = new Audio();
+	document.head.append(_audio); //give access to userscripts
 	let _current_playlist = null; //Library.Playlist
 	let _playlist_index = -1;
 	let _repeat = Repeat.playlist;
@@ -61,12 +62,12 @@ function AudioManager() {
 		}
 		const song = this.getSong();
 		_audio.src = song.uri;
+		_new_track_callback(_current_playlist, song);
 		await _audio.play();
 		MediaSessionManager.setMetadata(_current_playlist, song);
 		MediaSessionManager.setPositionState(0, song.duration, 1);
 		MediaSessionManager.setPlaybackState(State.playing);
 		_bindMediaSessionCallbacks();
-		_new_track_callback(_current_playlist, song);
 	};
 
 	const _bindMediaSessionCallbacks = () => {
