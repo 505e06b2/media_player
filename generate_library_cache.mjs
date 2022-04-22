@@ -107,7 +107,7 @@ async function generateLibraryCache() {
 		artist_song_ids.sort((a, b) => caseInsensitiveSort(library["songs"][a].title, library["songs"][b].title));
 		library["playlists"].push(createPlaylistObject(artist, artist_song_ids, "artist"));
 		const artist_playlist_id = library["playlists"].length-1;
-		for(const album of artist_album_playlists.sort((a, b) => a.track - b.track)) { //sorting needs a test - would want oldest last?
+		for(const album of artist_album_playlists) {
 			album.parent = artist_playlist_id;
 			library["playlists"].push(album);
 		}
