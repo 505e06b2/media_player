@@ -195,7 +195,7 @@ function UI(_library) {
 		}
 
 		_currently_playing_elem.innerText = song.title;
-		_currently_playing_elem.title = playlist.name;
+		_currently_playing_elem.title = song.title;
 		_currently_playing_elem.onclick = () => {_openFolder(playlist); return false;}
 
 		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);

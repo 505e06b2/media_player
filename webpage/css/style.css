@@ -74,7 +74,6 @@ a {
 }
 
 #content .playing {
-	position: relative;
 	background: var(--text-colour);
 	color: var(--background);
 }
