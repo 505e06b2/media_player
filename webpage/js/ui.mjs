@@ -211,7 +211,7 @@ function UI(_library) {
 	};
 
 	this.updateCurrentlyPlaying = async (playlist, song) => {
-		if(playlist === null && song === null) { //not tested
+		if(playlist === null && song === null) {
 			_currently_playing_elem.innerText = "nothing playing";
 			_currently_playing_elem.title = _currently_playing_elem.innerText;
 			_currently_playing_elem.onclick = () => false;
