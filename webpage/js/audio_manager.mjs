@@ -94,6 +94,7 @@ function AudioManager() {
 
 	_audio.onended = async () => await _playNext();
 	_audio.onplay = _audio.onpause = () => {
+		_audio_context.resume(); //required for mobile, since this will have been executed via user action
 		const state = this.state();
 		MediaSessionManager.setPlaybackState(state);
 		_play_pause_callback(state);
