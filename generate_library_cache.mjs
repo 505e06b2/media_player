@@ -104,7 +104,7 @@ async function generateLibraryCache() {
 			artist_album_playlists.push(createPlaylistObject(album, album_song_ids, "album", album_released));
 		}
 
-		artist_song_ids.sort((a, b) => caseInsensitiveSort(library["songs"][a].title, library["songs"][b].title));
+		artist_song_ids.sort((a, b) => caseInsensitiveSort(library["songs"][a].title, library["songs"][b].title)); //for "master" playlist
 		library["playlists"].push(createPlaylistObject(artist, artist_song_ids, "artist"));
 		const artist_playlist_id = library["playlists"].length-1;
 		for(const album of artist_album_playlists) {

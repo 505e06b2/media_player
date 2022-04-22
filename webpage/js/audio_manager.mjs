@@ -22,6 +22,7 @@ function AudioManager() {
 	let _current_playlist = null; //Library.Playlist
 	let _playlist_index = -1;
 	let _repeat = Repeat.playlist;
+	let _shuffle = false;
 	let _play_pause_callback = () => null;
 	let _new_track_callback = () => null;
 	let _time_update_callback = () => null;
@@ -43,7 +44,7 @@ function AudioManager() {
 			_playlist_index--;
 		}
 		_current_playlist = playlist;
-		_playNext();
+		_playNext(false, true);
 	};
 
 	const constructor = () => {
@@ -53,10 +54,17 @@ function AudioManager() {
 		_gain_node.connect(_audio_context.destination);
 	};
 
-	const _playNext = async (go_back = false) => {
+	const _playNext = async (go_back = false, ignore_shuffle = false) => {
 		if(!_current_playlist) return;
 		if(go_back) {
 			if(--_playlist_index < 0) _playlist_index = _current_playlist.songs.length-1;
+
+		} else if(ignore_shuffle === false && _shuffle) {
+			const previous_index = _playlist_index;
+			while(_playlist_index === previous_index) {
+				_playlist_index = Math.floor(Math.random() * _current_playlist.songs.length);
+			}
+
 		} else {
 			if(++_playlist_index >= _current_playlist.songs.length) {
 				if(_repeat !== Repeat.playlist) { //not tested - move to onended?
@@ -69,11 +77,15 @@ function AudioManager() {
 				_playlist_index = 0;
 			}
 		}
+
 		const song = this.getSong();
+		const playlist = this.getPlaylist();
+
 		_audio.src = song.uri;
-		_new_track_callback(_current_playlist, song);
+		_new_track_callback(playlist, song);
 		await _audio.play();
-		MediaSessionManager.setMetadata(_current_playlist, song);
+
+		MediaSessionManager.setMetadata(playlist, song);
 		MediaSessionManager.setPositionState(0, song.duration, 1);
 		MediaSessionManager.setPlaybackState(State.playing);
 		_bindMediaSessionCallbacks();
@@ -116,6 +128,12 @@ function AudioManager() {
 
 	this.previous = async () => await _playNext(true);
 	this.next = async () => await _playNext();
+
+	this.shuffle = (set_value) => {
+		if(set_value === undefined) return _shuffle;
+		_shuffle = set_value;
+		return _shuffle;
+	}
 
 	this.repeat = (set_value) => {
 		if(set_value === undefined) return _repeat;

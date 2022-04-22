@@ -17,6 +17,23 @@ function UI(_library) {
 		song: "song"
 	};
 
+	const shuffle_icons = {
+		true: ")(",
+		false: "||"
+	};
+
+	const play_pause_icons = {//Needs to be in sync with AudioManager.State
+		paused: "+>", //invert since we will play the next time this is clicked
+		playing: "][", // ^
+		stopped: "[]"
+	};
+
+	const repeat_icons = { //Needs to be in sync with AudioManager.Repeat
+		none: "(x",
+		playlist: "()",
+		one: "(1"
+	};
+
 	const _createBoxIndent = (value, array) => {
 		return (value === array[array.length-1] ? "└" : "├") + "── ";
 	};
@@ -168,22 +185,19 @@ function UI(_library) {
 		Elements.find('#previous').onclick = (e) => {AudioManager.previous(); return false;}
 		Elements.find('#next').onclick = (e) => {AudioManager.next(); return false;}
 
+		Elements.find('#shuffle').onclick = (e) => {
+			const previous_state = AudioManager.shuffle();
+			const new_state = AudioManager.shuffle(!previous_state);
+			e.target.innerText = shuffle_icons[new_state] || shuffle_icons.false;
+			return false;
+		};
+
 		_openFolder();
 	};
 
+	//these are bound to AudioManager events
 	this.updatePlayPause = async (current_state) => {
-		switch(current_state) {
-			case "paused":
-				_play_pause_button.innerText = "+>";
-				break;
-
-			case "playing":
-				_play_pause_button.innerText = "][";
-				break;
-
-			default:
-				_play_pause_button.innerText = "[]";
-		}
+		_play_pause_button.innerText = play_pause_icons[current_state] ?? play_pause_icons.stopped;
 	};
 
 	this.updateCurrentlyPlaying = async (playlist, song) => {
