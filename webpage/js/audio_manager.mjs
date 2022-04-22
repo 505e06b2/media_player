@@ -67,7 +67,7 @@ function AudioManager() {
 
 		} else {
 			if(++_playlist_index >= _current_playlist.songs.length) {
-				if(_repeat !== Repeat.playlist) {
+				if(_repeat === Repeat.none) {
 					_playlist_index = -1;
 					_audio.src = "";
 					_new_track_callback(null, null);
