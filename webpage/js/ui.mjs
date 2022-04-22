@@ -33,6 +33,7 @@ function UI(_library) {
 		playlist: "()",
 		one: "(1"
 	};
+	const repeat_icon_states = ["none", "playlist", "one"];
 
 	const _createBoxIndent = (value, array) => {
 		return (value === array[array.length-1] ? "└" : "├") + "── ";
@@ -177,7 +178,7 @@ function UI(_library) {
 		_top_dock_path = Elements.find('#top-dock .path');
 		_seekbar = Elements.find('#seekbar');
 
-		_play_pause_button.onclick = (e) => {AudioManager.togglePlayPause(); return false;}
+		_play_pause_button.onclick = (e) => {if(AudioManager.state() !== play_pause_icons.stopped) AudioManager.togglePlayPause(); return false;}
 		_seekbar.onmousedown = (e) => {AudioManager.seekPercent(e.clientX / window.innerWidth * 100); return false;}
 
 		Elements.find('#root').onclick = () => {_openFolder(); return false;} //root path
@@ -189,6 +190,15 @@ function UI(_library) {
 			const previous_state = AudioManager.shuffle();
 			const new_state = AudioManager.shuffle(!previous_state);
 			e.target.innerText = shuffle_icons[new_state] || shuffle_icons.false;
+			return false;
+		};
+
+		Elements.find('#repeat').onclick = (e) => {
+			const previous_state = AudioManager.repeat();
+			let index = repeat_icon_states.indexOf(previous_state);
+			if(++index > repeat_icon_states.length-1) index = 0;
+			const new_state = AudioManager.repeat(repeat_icon_states[index]);
+			e.target.innerText = repeat_icons[new_state] || repeat_icons.none;
 			return false;
 		};
 

@@ -59,7 +59,7 @@ function AudioManager() {
 		if(go_back) {
 			if(--_playlist_index < 0) _playlist_index = _current_playlist.songs.length-1;
 
-		} else if(ignore_shuffle === false && _shuffle) {
+		} else if(ignore_shuffle === false && _current_playlist.songs.length > 1 && _shuffle) {
 			const previous_index = _playlist_index;
 			while(_playlist_index === previous_index) {
 				_playlist_index = Math.floor(Math.random() * _current_playlist.songs.length);
@@ -69,6 +69,7 @@ function AudioManager() {
 			if(++_playlist_index >= _current_playlist.songs.length) {
 				if(_repeat !== Repeat.playlist) { //not tested - move to onended?
 					_playlist_index = -1;
+					_audio.src = "";
 					_new_track_callback(null, null);
 					_play_pause_callback(State.stopped);
 					_time_update_callback(100.0);
@@ -146,12 +147,14 @@ function AudioManager() {
 		return _repeat;
 	};
 
-	//use gain for finer control
+	//use gain
+	/*
 	this.volume = (set_percent_value) => {
 		if(set_percent_value === undefined) return _audio.volume;
 		_audio.volume = 1 - Math.pow(10, -set_percent_value/100);
 		return _audio.volume;
 	};
+	*/
 
 	this.gain = (set_percent_value) => {
 		if(set_percent_value === undefined) return _gain_node.gain.value;
@@ -160,15 +163,17 @@ function AudioManager() {
 	};
 
 	this.seekPercent = (set_value) => {
+		if(isNaN(_audio.duration)) return;
 		const song = this.getSong();
 		const song_not_seekable = _audio.seekable.length && _audio.seekable.end(0) === 0;
-		if(set_value === undefined || song_not_seekable) return _audio.currentTime / song.duration * 100;
-		_audio.currentTime = set_value / 100 * song.duration;
+		if(set_value === undefined || song_not_seekable) return _audio.currentTime / _audio.duration * 100;
+		_audio.currentTime = set_value / 100 * _audio.duration;
 		MediaSessionManager.setPositionState(_audio.currentTime, _audio.duration, _audio.playbackRate);
 		return _audio.currentTime;
 	};
 
 	this.seek = (set_value) => {
+		if(isNaN(_audio.duration)) return;
 		const song_not_seekable = _audio.seekable.length && _audio.seekable.end(0) === 0;
 		if(set_value === undefined || song_not_seekable) return _audio.currentTime;
 		_audio.currentTime = set_value;
