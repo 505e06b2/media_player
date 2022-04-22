@@ -76,21 +76,7 @@ a {
 #content .playing {
 	position: relative;
 	background: var(--text-colour);
-}
-
-#content .playing::after {
-	content: attr(overlay-text);
-	color: var(--text-colour);
-	mix-blend-mode: difference;
-	display: flex;
-	align-items: center;
-	position: absolute;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	bottom: 0px;
-	text-indent: -62px;
-	padding-left: 62px;
+	color: var(--background);
 }
 
 #bottom-dock {
