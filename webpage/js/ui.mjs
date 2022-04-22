@@ -164,7 +164,7 @@ function UI(_library) {
 		_seekbar.onmousedown = (e) => {AudioManager.seekPercent(e.clientX / window.innerWidth * 100); return false;}
 
 		Elements.find('#root').onclick = () => {_openFolder(); return false;} //root path
-		Elements.find('#volume').oninput = (e) => AudioManager.volume(parseInt(e.target.value));
+		Elements.find('#gain').oninput = (e) => AudioManager.gain(parseInt(e.target.value));
 		Elements.find('#previous').onclick = (e) => {AudioManager.previous(); return false;}
 		Elements.find('#next').onclick = (e) => {AudioManager.next(); return false;}
 

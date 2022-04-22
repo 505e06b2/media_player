@@ -16,7 +16,9 @@ export const State = {
 
 function AudioManager() {
 	const _audio = new Audio();
-	document.head.append(_audio); //give access to userscripts
+	const _audio_context = new AudioContext();
+	const _gain_node = _audio_context.createGain();
+
 	let _current_playlist = null; //Library.Playlist
 	let _playlist_index = -1;
 	let _repeat = Repeat.playlist;
@@ -42,6 +44,13 @@ function AudioManager() {
 		}
 		_current_playlist = playlist;
 		_playNext();
+	};
+
+	const constructor = () => {
+		const audio_source = _audio_context.createMediaElementSource(_audio);
+
+		audio_source.connect(_gain_node);
+		_gain_node.connect(_audio_context.destination);
 	};
 
 	const _playNext = async (go_back = false) => {
@@ -118,10 +127,17 @@ function AudioManager() {
 		return _repeat;
 	};
 
+	//use gain for finer control
 	this.volume = (set_percent_value) => {
 		if(set_percent_value === undefined) return _audio.volume;
 		_audio.volume = 1 - Math.pow(10, -set_percent_value/100);
 		return _audio.volume;
+	};
+
+	this.gain = (set_percent_value) => {
+		if(set_percent_value === undefined) return _gain_node.gain.value;
+		_gain_node.gain.value = 1 - Math.pow(10, -set_percent_value/100);
+		return _gain_node.gain.value;
 	};
 
 	this.seekPercent = (set_value) => {
@@ -140,6 +156,8 @@ function AudioManager() {
 		MediaSessionManager.setPositionState(set_value, _audio.duration, _audio.playbackRate);
 		return _audio.currentTime;
 	};
+
+	constructor();
 }
 
 export default new AudioManager();

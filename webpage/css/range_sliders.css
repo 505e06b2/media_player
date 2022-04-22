@@ -1,5 +1,6 @@
 
 input[type="range"] {
+	border-left: 3px solid var(--text-colour);
 	position: relative;
     margin: 0px;
 	height: 100%;
@@ -8,10 +9,11 @@ input[type="range"] {
     overflow: hidden;
 	outline: none;
 	background: transparent;
+	cursor: pointer;
 }
 
 input[type="range"]::after {
-	content: "volume";
+	content: "gain";
 	display: flex;
 	position: absolute;
 	left: 0px;
