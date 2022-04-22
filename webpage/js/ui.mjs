@@ -145,9 +145,9 @@ function UI(_library) {
 			}
 		}
 
-		const currently_playing_song = Elements.find('#content .playing');
-		if(currently_playing_song) {
-			currently_playing_song.scrollIntoView({block: "center", inline: "center"});
+		const currently_playing = Elements.find('#content .playing');
+		if(currently_playing && currently_playing.getAttribute("type") === list_item_types.song) {
+			currently_playing.scrollIntoView({block: "center", inline: "center"});
 		} else {
 			window.scrollTo(0, 0);
 		}
