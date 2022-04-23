@@ -40,6 +40,7 @@ function parseRange(range_header, data_length) {
 	}
 }
 
+console.log(`Hosting HTTP server on port ${settings.port}`);
 http.createServer(async (request, response) => {
 	function sendBinaryResponse(status_code = 500, content_type = mime_types.plain_text, content = null, extra_headers = {}) {
 		const headers = Object.assign({
