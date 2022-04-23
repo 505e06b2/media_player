@@ -37,17 +37,17 @@ function createSongObject(filepath, song_data) {
 	};
 }
 
-function loadCacheFile() {
+function loadSongCacheFile() {
 	try {
 		const file_contents = fs.readFileSync(settings.song_metadata_cache, {encoding: "utf8"});
 		return JSON.parse(file_contents);
 	} catch(e) {
-		console.error("Failed to load cache, using default value\n", e.toString());
+		console.error("Failed to load song cache, using default value\n", e.toString());
 	}
 	return {};
 }
 
-function saveCacheFile(contents) {
+function saveSongCacheFile(contents) {
 	fs.writeFileSync(settings.song_metadata_cache, JSON.stringify(contents));
 }
 
@@ -93,7 +93,7 @@ With 400-ish songs:
 - Asynchronous: ~35s
 */
 async function generateLibraryCache() {
-	const cache_contents = loadCacheFile();
+	const song_metadata_cache = loadSongCacheFile();
 	const library = {
 		playlists: [],
 		songs: []
@@ -112,10 +112,10 @@ async function generateLibraryCache() {
 				const file_path = path.join(settings.music_folder, path_suffix);
 				const file_uri = path.join(settings.music_uri, path_suffix);
 				promises.push((async () => {
-					let song_metadata = cache_contents[file_uri];
+					let song_metadata = song_metadata_cache[file_uri];
 					if(song_metadata === undefined) {
 						song_metadata = createSongObject(file_uri, await metadata.parseFile(file_path));
-						cache_contents[file_uri] = song_metadata;
+						song_metadata_cache[file_uri] = song_metadata;
 					}
 					return song_metadata;
 				})());
@@ -142,7 +142,7 @@ async function generateLibraryCache() {
 		}
 	}
 
-	saveCacheFile(cache_contents);
+	saveSongCacheFile(song_metadata_cache);
 
 	return library;
 }
