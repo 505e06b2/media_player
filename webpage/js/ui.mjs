@@ -39,30 +39,33 @@ function UI(_library) {
 		return (value === array[array.length-1] ? "└" : "├") + "── ";
 	};
 
-	const _createListItem = (name, onclickHandler = null, currently_playing = {song: null, playlist: null}) => {
+	const _createListItem = (name, onclickHandler = null, list_item_data = {song: null, playlist: null}) => {
 		const plaintext = name.replace(/[└─├]/gs, "").trim();
 		const elem = Elements.create("a", {
 			innerText: name
 		});
 
 		if(onclickHandler) {
-			elem.href = currently_playing.song ? currently_playing.song.uri : `#${plaintext}`;
+			elem.href = list_item_data.song ? list_item_data.song.uri : `#${plaintext}`;
 			elem.onclick = (e) => {onclickHandler(); return false;}
 		}
 
-		elem.setAttribute("overlay-text", name); //for use with .playing::after
+		elem.setAttribute("plain-text", plaintext);
 
-		if(currently_playing.song) {
-			elem.setAttribute("uri", currently_playing.song.uri);
+		if(list_item_data.song) {
+			elem.setAttribute("uri", list_item_data.song.uri);
 			elem.setAttribute("type", list_item_types.song);
-			const playlist_check = currently_playing.playlist && currently_playing.playlist === AudioManager.getPlaylist();
-			if(playlist_check && currently_playing.song === AudioManager.getSong()) {
+
+			const playlist_check = list_item_data.playlist && list_item_data.playlist === AudioManager.getPlaylist();
+			const song_check = list_item_data.song === AudioManager.getSong();
+			if(playlist_check && song_check) {
 				elem.classList.add("playing");
 			}
-		} else if(currently_playing.playlist) {
-			if(AudioManager.getSong() && currently_playing.playlist === AudioManager.getPlaylist()) {
+
+		} else if(list_item_data.playlist) {
+			elem.setAttribute("type", list_item_types.playlist);
+			if(AudioManager.getSong() && list_item_data.playlist === AudioManager.getPlaylist()) {
 				elem.classList.add("playing");
-				elem.setAttribute("type", list_item_types.playlist);
 			}
 		}
 
@@ -227,11 +230,16 @@ function UI(_library) {
 
 		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
 
-		if(previous) {
-			const is_playlist = previous.getAttribute("type") === list_item_types.playlist
+		if(previous) { //playing, only change if playlist changed
+			const is_playlist = previous.getAttribute("type") === list_item_types.playlist;
 			const playlist_is_playing = previous.innerHTML.endsWith(playlist.name);
 			if(is_playlist && playlist_is_playing) return;
 			previous.classList.remove("playing");
+
+		} else { //stopped, only highlight song if inside playlist
+			const playlists_on_page = document.querySelectorAll(`#content a[type="${list_item_types.playlist}"]`);
+			const playlist_names = Array.from(playlists_on_page).map(x => x.getAttribute("plain-text"));
+			if(playlist_names.includes(playlist.name)) return;
 		}
 
 		const current = Elements.find(`#content a[uri="${song.uri}"]`);
