@@ -84,7 +84,14 @@ function AudioManager() {
 
 		_audio.src = song.uri;
 		_new_track_callback(playlist, song);
-		await _audio.play();
+		try {
+			await _audio.play();
+		} catch(e) {
+			console.trace(e);
+			_new_track_callback(null, null);
+			_play_pause_callback(State.stopped);
+			_time_update_callback(100.0);
+		}
 
 		MediaSessionManager.setMetadata(playlist, song);
 		MediaSessionManager.setPositionState(0, song.duration, 1);
