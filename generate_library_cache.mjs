@@ -70,6 +70,14 @@ function sortAlbumTrack(a, b) {
 	return a_disk_number - b_disk_number;
 }
 
+/*
+The speed of this algorithm seems to be dependant on the implementation of metadata.parseFile
+It is advised to parse them synchronously, but there is a noticable speed improvement if this is done per-artist
+With 400-ish songs:
+- Synchronous: ~27s
+- Per-Artist (biggest artist having 187 songs): ~22s
+- Asynchronous: ~35s
+*/
 async function generateLibraryCache() {
 	const library = {
 		playlists: [],
