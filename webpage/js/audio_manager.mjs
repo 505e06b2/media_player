@@ -67,9 +67,7 @@ function AudioManager() {
 
 		} else {
 			if(++_playlist_index >= _current_playlist.songs.length) {
-				if(_repeat === Repeat.none) {
-					return _playbackStopped();
-				}
+				if(_repeat === Repeat.none) return _playbackStopped();
 				_playlist_index = 0;
 			}
 		}
@@ -132,6 +130,7 @@ function AudioManager() {
 	this.stop = () => {
 		_audio.pause();
 		_audio.currentTime = 0;
+		_playbackStopped();
 	};
 
 	this.previous = async () => await _playNext(true);
