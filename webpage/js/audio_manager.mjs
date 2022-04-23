@@ -68,12 +68,7 @@ function AudioManager() {
 		} else {
 			if(++_playlist_index >= _current_playlist.songs.length) {
 				if(_repeat === Repeat.none) {
-					_playlist_index = -1;
-					_audio.src = "";
-					_new_track_callback(null, null);
-					_play_pause_callback(State.stopped);
-					_time_update_callback(100.0);
-					return;
+					return _playbackStopped();
 				}
 				_playlist_index = 0;
 			}
@@ -87,16 +82,21 @@ function AudioManager() {
 		try {
 			await _audio.play();
 		} catch(e) {
-			console.trace(e);
-			_new_track_callback(null, null);
-			_play_pause_callback(State.stopped);
-			_time_update_callback(100.0);
+			return _playbackStopped();
 		}
 
 		MediaSessionManager.setMetadata(playlist, song);
 		MediaSessionManager.setPositionState(0, song.duration, 1);
 		MediaSessionManager.setPlaybackState(State.playing);
 		_bindMediaSessionCallbacks();
+	};
+
+	const _playbackStopped = () => {
+		_playlist_index = -1;
+		_audio.src = "";
+		_new_track_callback(null, null);
+		_play_pause_callback(State.stopped);
+		_time_update_callback(100.0);
 	};
 
 	const _bindMediaSessionCallbacks = () => {
@@ -106,7 +106,7 @@ function AudioManager() {
 		MediaSessionManager.bind("previoustrack", this.previous);
 		MediaSessionManager.bind("nexttrack", this.next);
 		MediaSessionManager.bind("seekto", (values) => this.seek(values.seekTime));
-	}
+	};
 
 	this.bindTimeUpdate = (callback) => _time_update_callback = callback;
 	this.bindPlayPause = (callback) => _play_pause_callback = callback;

@@ -60,7 +60,7 @@ function UI(_library) {
 				elem.classList.add("playing");
 			}
 		} else if(currently_playing.playlist) {
-			if(currently_playing.playlist === AudioManager.getPlaylist()) {
+			if(AudioManager.getSong() && currently_playing.playlist === AudioManager.getPlaylist()) {
 				elem.classList.add("playing");
 				elem.setAttribute("type", list_item_types.playlist);
 			}
@@ -211,10 +211,13 @@ function UI(_library) {
 	};
 
 	this.updateCurrentlyPlaying = async (playlist, song) => {
+		const previous = Elements.find(`#content .playing`);
+
 		if(playlist === null && song === null) {
 			_currently_playing_elem.innerText = "nothing playing";
 			_currently_playing_elem.title = _currently_playing_elem.innerText;
 			_currently_playing_elem.onclick = () => false;
+			if(previous) previous.classList.remove("playing");
 			return;
 		}
 
@@ -224,11 +227,10 @@ function UI(_library) {
 
 		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
 
-		const previous = Elements.find(`#content .playing`);
 		if(previous) {
 			const is_playlist = previous.getAttribute("type") === list_item_types.playlist
 			const playlist_is_playing = previous.innerHTML.endsWith(playlist.name);
-			if(is_playlist && playlist_is_playing)return;
+			if(is_playlist && playlist_is_playing) return;
 			previous.classList.remove("playing");
 		}
 
