@@ -80,7 +80,14 @@ function AudioManager() {
 		try {
 			await _audio.play();
 		} catch(e) {
-			return _playbackStopped();
+			if(e instanceof(DOMException)) {
+				if(e.message.includes("interrupted by a new load request")) return; //selected a new song, while the old one was loading
+				else if(e.message.includes("interrupted by a call to pause()")) ; //IGNORE/NO-OP - same as above, but thrown for the new song?
+				else console.trace(e);
+			} else {
+				console.trace(e);
+				return _playbackStopped();
+			}
 		}
 
 		MediaSessionManager.setMetadata(playlist, song);

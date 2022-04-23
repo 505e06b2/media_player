@@ -95,11 +95,18 @@ function UI(_library) {
 				throw `"${playlist}" is an invalid playlist`;
 			}
 
+			let go_back_func = () => _openFolder();
 			_top_dock_path.append(_createPathItem(`${playlist.name}/`, () => _openFolder(playlist)));
+
 			for(let current = playlist.parent; current != null; current = current.parent) {
+				go_back_func = () => _openFolder(current);
 				const next = _createPathItem(`${current.name}/`, () => _openFolder(current));
+
 				_top_dock_path.insertBefore(next, _top_dock_path.children[_top_dock_path.children.length-1]);
 			}
+
+			const go_back_elem = _createListItem("..", go_back_func);
+			_content_container.append(go_back_elem);
 
 			switch(playlist.type) {
 				case "artist":
@@ -127,6 +134,7 @@ function UI(_library) {
 					break;
 
 				case "album":
+					go_back_elem.innerText = "    " + go_back_elem.innerText;
 					for(const song of playlist.songs) {
 						const track_prefx = song.track && song.track.toString().padStart(3) || "   ";
 						_content_container.append(_createListItem(
