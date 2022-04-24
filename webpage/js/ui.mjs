@@ -4,6 +4,7 @@ import UnicodeMonospace from "./unicode_monospace.mjs";
 import Library from "./library.mjs";
 import Elements from "./elements.mjs";
 import AudioManager from "./audio_manager.mjs";
+import URLManager from "./url_manager.mjs";
 
 function UI(_library) {
 	let _content_container;
@@ -192,26 +193,55 @@ function UI(_library) {
 		_play_pause_button.onclick = (e) => {if(AudioManager.state() !== play_pause_icons.stopped) AudioManager.togglePlayPause(); return false;}
 		_seekbar.onmousedown = (e) => {AudioManager.seekPercent(e.clientX / window.innerWidth * 100); return false;}
 
+		const gain_element = Elements.find('#gain');
+		const shuffle_element = Elements.find('#shuffle');
+		const repeat_element = Elements.find('#repeat');
+
 		Elements.find('#root').onclick = () => {_openFolder(); return false;} //root path
-		Elements.find('#gain').oninput = (e) => AudioManager.gain(parseInt(e.target.value));
+		gain_element.oninput = () => {
+			AudioManager.gain(parseInt(gain_element.value));
+			URLManager.updateParam(URLManager.params.gain, gain_element.value);
+		}
+
 		Elements.find('#previous').onclick = (e) => {AudioManager.previous(); return false;}
 		Elements.find('#next').onclick = (e) => {AudioManager.next(); return false;}
 
-		Elements.find('#shuffle').onclick = (e) => {
+		shuffle_element.onclick = () => {
 			const previous_state = AudioManager.shuffle();
 			const new_state = AudioManager.shuffle(!previous_state);
-			e.target.innerText = shuffle_icons[new_state] || shuffle_icons.false;
+			shuffle_element.innerText = shuffle_icons[new_state] || shuffle_icons.false;
+			URLManager.updateParam(URLManager.params.shuffle, new_state);
 			return false;
 		};
 
-		Elements.find('#repeat').onclick = (e) => {
+		repeat_element.onclick = () => {
 			const previous_state = AudioManager.repeat();
 			let index = repeat_icon_states.indexOf(previous_state);
 			if(++index > repeat_icon_states.length-1) index = 0;
 			const new_state = AudioManager.repeat(repeat_icon_states[index]);
-			e.target.innerText = repeat_icons[new_state] || repeat_icons.none;
+			repeat_element.innerText = repeat_icons[new_state] || repeat_icons.none;
+			URLManager.updateParam(URLManager.params.repeat, new_state);
 			return false;
 		};
+
+		const params = URLManager.getParams();
+		if(params.gain !== undefined) {
+			gain_element.value = params.gain;
+			AudioManager.gain(parseInt(params.gain));
+		}
+
+		if(params.shuffle !== undefined) {
+			shuffle_element.innerText = shuffle_icons[params.shuffle];
+			AudioManager.shuffle(params.shuffle);
+		}
+
+		if(params.repeat !== undefined) {
+			const index = repeat_icon_states.indexOf(params.repeat);
+			if(index !== -1) {
+				repeat_element.innerText = repeat_icons[params.repeat];
+				AudioManager.repeat(params.repeat);
+			}
+		}
 
 		_openFolder();
 	};

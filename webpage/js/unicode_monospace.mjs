@@ -1,3 +1,5 @@
+"use strict";
+
 //https://en.wikipedia.org/wiki/Mathematical_Alphanumeric_Symbols#Chart_for_the_Mathematical_Alphanumeric_Symbols_block
 
 function UnicodeMonospace() {
