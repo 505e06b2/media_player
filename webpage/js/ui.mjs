@@ -5,6 +5,7 @@ import Library from "./library.mjs";
 import Elements from "./elements.mjs";
 import AudioManager from "./audio_manager.mjs";
 import URLManager from "./url_manager.mjs";
+import FolderPath from "./folder_path.mjs";
 
 function UI(_library) {
 	let _content_container;
@@ -85,28 +86,6 @@ function UI(_library) {
 		});
 	};
 
-	const _createPathFromPlaylist = (playlist) => {
-		const ret = [];
-		if(playlist) {
-			for(let current = playlist; current != null; current = current.parent) {
-				ret.unshift(current);
-			}
-		}
-		return ret;
-	}
-
-	const _findPlaylistFromPathString = (path_str) => {
-		const path = path_str.split("\x00").slice(-2);
-		const playlists = _library.getPlaylists();
-		let found_playlist;
-		if(path.length > 1) { //has parent
-			found_playlist = playlists.find(x => x.parent && x.parent.name === path[0] && x.name === path[1]);
-		} else {
-			found_playlist = playlists.find(x => x.parent === null & x.name === path[0]);
-		}
-		return found_playlist;
-	}
-
 	const _openFile = async (playlist, song = null) => {
 		if(!song) song = playlist.songs[0];
 		await AudioManager.setPlaylist(playlist, song);
@@ -121,7 +100,7 @@ function UI(_library) {
 				throw `"${playlist}" is an invalid playlist`;
 			}
 
-			const playlist_path = _createPathFromPlaylist(playlist);
+			const playlist_path = FolderPath.fromPlaylist(playlist).findPlaylistPath(_library.getPlaylists());
 			let go_back_func = () => _openFolder();
 			_top_dock_path.append(_createPathItem(`${playlist.name}/`, () => _openFolder(playlist)));
 
@@ -259,7 +238,7 @@ function UI(_library) {
 		const params = URLManager.getParams();
 		if(params.loadedplaylist !== undefined) {
 			if(params.loadedsong !== undefined) {
-				const found_playlist = _findPlaylistFromPathString(params.loadedplaylist);
+				const found_playlist = FolderPath.fromString(params.loadedplaylist).findPlaylist(_library.getPlaylists());
 				const found_song = _library.getSongs().find(x => x.metadata_hash === params.loadedsong);
 				if(found_playlist && found_song) {
 					(async () => {
@@ -307,7 +286,7 @@ function UI(_library) {
 		}
 
 		if(params.folder !== undefined) {
-			const found_playlist = _findPlaylistFromPathString(params.folder);
+			const found_playlist = FolderPath.fromString(params.folder).findPlaylist(_library.getPlaylists());
 			if(found_playlist) {
 				return _openFolder(found_playlist); //return so it doesn't open root
 			}
@@ -339,8 +318,7 @@ function UI(_library) {
 		_currently_playing_elem.onclick = () => {_openFolder(playlist); return false;}
 
 		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
-		const playlist_path_str = _createPathFromPlaylist(playlist).map(x => x.name).join("\x00");
-		URLManager.updateParam(URLManager.params.loadedplaylist, playlist_path_str);
+		URLManager.updateParam(URLManager.params.loadedplaylist, FolderPath.fromPlaylist(playlist));
 		URLManager.updateParam(URLManager.params.loadedsong, song.metadata_hash);
 
 		if(previous) { //playing, only change if playlist changed
