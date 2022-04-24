@@ -6,7 +6,7 @@ import AudioManager from "./audio_manager.mjs";
 import UI from "./ui.mjs";
 
 try {
-	const library = new Library.Library(await(await fetch("api/getLibrary.json")).json());
+	const library = new Library.Library(await (await fetch("api/getLibrary.json")).json());
 
 	const ui = new UI(library);
 
@@ -14,7 +14,7 @@ try {
 	AudioManager.bindPlayPause(ui.updatePlayPause);
 	AudioManager.bindTimeUpdate(ui.updateSeek);
 
-	ui.parseConfig();
+	await ui.parseConfig();
 
 	window.onkeydown = (e) => {
 		switch(e.key) {

@@ -61,7 +61,7 @@ function URLManager() {
 				case "pastebin_code_array":
 					if(value) {
 						if(ret[name] === undefined) ret[name] = [];
-						ret[name].push(value);
+						ret[name].push(...value.split("\x00"));
 					}
 					continue; //force full control of this
 

@@ -18,6 +18,7 @@
   "homepage": "https://github.com/505e06b2/media_player#readme",
   "dependencies": {
     "farmhash": "^3.2.2",
-    "music-metadata": "^7.12.3"
+    "music-metadata": "^7.12.3",
+    "node-fetch": "^3.2.3"
   }
 }

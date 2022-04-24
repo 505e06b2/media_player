@@ -234,8 +234,16 @@ function UI(_library) {
 		};
 	};
 
-	this.parseConfig = () => {
+	this.parseConfig = async () => {
 		const params = URLManager.getParams();
+		if(params.playlist !== undefined) {
+			for(const code of params.playlist) {
+				await _library.addRemotePlaylist(code);
+			}
+		}
+
+		console.log(_library.getPlaylists());
+
 		if(params.nowplaying !== undefined) {
 			const folder_path = FolderPath.fromString(params.nowplaying);
 			const found_playlist = folder_path.findPlaylist(_library.getPlaylists());
@@ -245,12 +253,6 @@ function UI(_library) {
 					await _openFile(found_playlist, found_song);
 					AudioManager.pause();
 				})();
-			}
-		}
-
-		if(params.playlist !== undefined) {
-			for(const x of params.playlist) {
-				console.log("Playlist code", x);
 			}
 		}
 

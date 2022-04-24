@@ -16,7 +16,7 @@ import farmhash from "farmhash";
 Playlist could be valid m3u files that use the link for each song instead of an ID
 */
 
-function createPlaylistObject(name, song_ids = [], type = "created", created = 0, parent = null) {
+export function createPlaylistObject(name, song_ids = [], type = "created", created = 0, parent = null) {
 	return {
 		name: name,
 		type: type,
@@ -95,7 +95,7 @@ With 400-ish songs:
 - Per-Artist (biggest artist having 187 songs): ~22s
 - Asynchronous: ~35s
 */
-async function generateLibraryCache() {
+export async function generateLibraryCache() {
 	const song_metadata_cache = loadSongCacheFile();
 	const library = {
 		playlists: [],
