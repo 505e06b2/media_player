@@ -31,6 +31,7 @@ a {
 
 #top-dock {
 	border-bottom: var(--dock-border);
+	border-color: var(--text-colour);
 	top: 0px;
 	overflow-x: auto;
 	word-break: keep-all;
@@ -81,6 +82,7 @@ a {
 #bottom-dock {
 	bottom: 0px;
 	border-top: var(--dock-border);
+	border-color: var(--text-colour);
 	white-space: nowrap;
 }
 
