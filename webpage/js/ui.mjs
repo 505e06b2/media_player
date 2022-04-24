@@ -100,7 +100,8 @@ function UI(_library) {
 				throw `"${playlist}" is an invalid playlist`;
 			}
 
-			const playlist_path = FolderPath.fromPlaylist(playlist).findPlaylistPath(_library.getPlaylists());
+			const playlist_path_structure = FolderPath.fromPlaylist(playlist)
+			const playlist_path = playlist_path_structure.findPlaylistPath(_library.getPlaylists());
 			let go_back_func = () => _openFolder();
 			_top_dock_path.append(_createPathItem(`${playlist.name}/`, () => _openFolder(playlist)));
 
@@ -114,8 +115,7 @@ function UI(_library) {
 			const go_back_elem = _createListItem("..", go_back_func);
 			_content_container.append(go_back_elem);
 
-			const folder_structure = playlist_path.map(x => x.name).join("\x00");
-			URLManager.updateParam(URLManager.params.folder, folder_structure);
+			URLManager.updateParam(URLManager.params.folder, playlist_path_structure);
 
 			switch(playlist.type) {
 				case "artist":
@@ -236,16 +236,15 @@ function UI(_library) {
 
 	this.parseConfig = () => {
 		const params = URLManager.getParams();
-		if(params.loadedplaylist !== undefined) {
-			if(params.loadedsong !== undefined) {
-				const found_playlist = FolderPath.fromString(params.loadedplaylist).findPlaylist(_library.getPlaylists());
-				const found_song = _library.getSongs().find(x => x.metadata_hash === params.loadedsong);
-				if(found_playlist && found_song) {
-					(async () => {
-						await _openFile(found_playlist, found_song);
-						AudioManager.pause();
-					})();
-				}
+		if(params.nowplaying !== undefined) {
+			const folder_path = FolderPath.fromString(params.nowplaying);
+			const found_playlist = folder_path.findPlaylist(_library.getPlaylists());
+			const found_song = _library.getSongs().find(x => x.metadata_hash === folder_path.song_hash());
+			if(found_playlist) {
+				(async () => {
+					await _openFile(found_playlist, found_song);
+					AudioManager.pause();
+				})();
 			}
 		}
 
@@ -308,8 +307,7 @@ function UI(_library) {
 			_currently_playing_elem.title = _currently_playing_elem.innerText;
 			_currently_playing_elem.onclick = () => false;
 			if(previous) previous.classList.remove("playing");
-			URLManager.deleteParam(URLManager.params.loadedplaylist);
-			URLManager.deleteParam(URLManager.params.loadedsong);
+			URLManager.deleteParam(URLManager.params.nowplaying);
 			return;
 		}
 
@@ -318,8 +316,7 @@ function UI(_library) {
 		_currently_playing_elem.onclick = () => {_openFolder(playlist); return false;}
 
 		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
-		URLManager.updateParam(URLManager.params.loadedplaylist, FolderPath.fromPlaylist(playlist));
-		URLManager.updateParam(URLManager.params.loadedsong, song.metadata_hash);
+		URLManager.updateParam(URLManager.params.nowplaying, FolderPath.fromPlaylist(playlist).appendSong(song));
 
 		if(previous) { //playing, only change if playlist changed
 			const is_playlist = previous.getAttribute("type") === list_item_types.playlist;

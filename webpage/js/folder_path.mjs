@@ -1,10 +1,11 @@
 "use strict";
 
-const path_separator = "\xff";
+const path_separator = "\x0f";
 const value_delimiter = "\x00";
 
-function FolderPath(path) {
+function FolderPath(path, song_metadata_hash) {
 	this.value = () => path;
+	this.song_hash = () => song_metadata_hash;
 
 	this.findPlaylist = (all_playlists) => {
 		let found_playlist;
@@ -27,6 +28,11 @@ function FolderPath(path) {
 		return ret;
 	};
 
+	this.appendSong = (song) => {
+		song_metadata_hash = song.metadata_hash;
+		return `${this.toString()}${value_delimiter}${song_metadata_hash}`;
+	};
+
 	this.toString = () => {
 		return this.value().join(path_separator);
 	}
@@ -44,6 +50,7 @@ export default {
 	},
 
 	fromString: (path_str) => {
-		return new FolderPath(path_str.split(path_separator));
+		const [folder_path_raw, song_hash] = path_str.split(value_delimiter);
+		return new FolderPath(folder_path_raw.split(path_separator), song_hash);
 	}
 };
