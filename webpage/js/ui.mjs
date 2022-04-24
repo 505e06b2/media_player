@@ -209,7 +209,7 @@ function UI(_library) {
 		Elements.find('#root').onclick = () => {_openFolder(); return false;} //root path
 		_gain_element.oninput = () => {
 			AudioManager.gain(parseInt(_gain_element.value));
-			URLManager.updateParam(URLManager.params.gain, gain_element.value);
+			URLManager.updateParam(URLManager.params.gain, _gain_element.value);
 		}
 
 		Elements.find('#previous').onclick = (e) => {AudioManager.previous(); return false;}
