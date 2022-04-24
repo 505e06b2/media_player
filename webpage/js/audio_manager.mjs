@@ -40,8 +40,11 @@ function AudioManager() {
 		_playlist_index = -1;
 		if(song) {
 			_playlist_index = playlist.songs.indexOf(song);
-			if(_playlist_index === -1) throw `"${song.title}" is not in ${playlist.name}`;
-			_playlist_index--;
+			if(_playlist_index !== -1) {
+				_playlist_index--;
+			} else {
+				console.warn(`"${song.title}" is not in ${playlist.name} - this could be due to a hash collision`);
+			}
 		}
 		_current_playlist = playlist;
 		await _playNext(false, true);

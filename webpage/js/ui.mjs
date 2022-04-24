@@ -239,8 +239,8 @@ function UI(_library) {
 		if(params.nowplaying !== undefined) {
 			const folder_path = FolderPath.fromString(params.nowplaying);
 			const found_playlist = folder_path.findPlaylist(_library.getPlaylists());
-			const found_song = _library.getSongs().find(x => x.metadata_hash === folder_path.song_hash());
 			if(found_playlist) {
+				const found_song = _library.getSongs().find(x => x.metadata_hash === folder_path.song_hash()); //collisions are not important
 				(async () => {
 					await _openFile(found_playlist, found_song);
 					AudioManager.pause();
