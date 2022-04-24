@@ -242,8 +242,6 @@ function UI(_library) {
 			}
 		}
 
-		console.log(_library.getPlaylists());
-
 		if(params.nowplaying !== undefined) {
 			const folder_path = FolderPath.fromString(params.nowplaying);
 			const found_playlist = folder_path.findPlaylist(_library.getPlaylists());

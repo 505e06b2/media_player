@@ -60,6 +60,10 @@ export const Library = {
 
 		this.addRemotePlaylist = async (code) => {
 			const playlist_data = await (await fetch(`api/getRemotePlaylist.json?code=${code}`)).json();
+			if(playlist_data.error) {
+				alert(`Error while loading playlist "${playlist_data.name}"\n${playlist_data.error}`);
+				return;
+			}
 			const playlist = _generatePlaylist(playlist_data);
 			playlist.children = [];
 			_playlists.unshift(playlist);
