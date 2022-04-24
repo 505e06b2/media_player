@@ -4,13 +4,15 @@ function URLManager() {
 	this.params = {
 		gain: "gain",
 		shuffle: "shuffle",
-		repeat: "repeat"
+		repeat: "repeat",
+		playlist: "playlist"
 	};
 
 	const _param_types = {
 		gain: "number",
 		shuffle: "boolean",
-		repeat: "string"
+		repeat: "string",
+		playlist: "string"
 	};
 
 	this.getRawParams = () => {
@@ -51,6 +53,13 @@ function URLManager() {
 		const new_url = `${location.pathname}?${current_params}`;
 		history.replaceState(null, "", new_url);
 	};
+
+	this.deleteParam = (name) => {
+		const current_params = this.getRawParams();
+		current_params.delete(name);
+		const new_url = `${location.pathname}?${current_params}`;
+		history.replaceState(null, "", new_url);
+	}
 }
 
 export default new URLManager();

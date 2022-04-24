@@ -91,6 +91,12 @@ function UI(_library) {
 		_content_container.innerHTML = "";
 		Array.from(_top_dock_path.children).slice(1).map(x => x.outerHTML = "");
 
+		if(playlist) {
+			URLManager.updateParam("playlist", `${playlist.type}\x00${playlist.name}`);
+		} else {
+			URLManager.deleteParam("playlist");
+		}
+
 		if(playlist !== undefined) { //list songs
 			if(playlist instanceof(Library.Playlist) === false) {
 				throw `"${playlist}" is an invalid playlist`;
@@ -224,6 +230,7 @@ function UI(_library) {
 			return false;
 		};
 
+		//apply client settings from query params
 		const params = URLManager.getParams();
 		if(params.gain !== undefined) {
 			gain_element.value = params.gain;
@@ -240,6 +247,15 @@ function UI(_library) {
 			if(index !== -1) {
 				repeat_element.innerText = repeat_icons[params.repeat];
 				AudioManager.repeat(params.repeat);
+			}
+		}
+
+		if(params.playlist !== undefined) {
+			const [type, name] = params.playlist.split("\x00");
+			const found_playlist = _library.getPlaylists().find(x => x.type === type && x.name === name);
+			if(found_playlist) {
+				_openFolder(found_playlist);
+				return; //don't open root folder
 			}
 		}
 
