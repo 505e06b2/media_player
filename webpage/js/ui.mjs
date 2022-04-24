@@ -9,8 +9,11 @@ import URLManager from "./url_manager.mjs";
 function UI(_library) {
 	let _content_container;
 	let _top_dock_path;
-	let _play_pause_button;
 	let _currently_playing_elem;
+	let _shuffle_element;
+	let _play_pause_button;
+	let _repeat_element;
+	let _gain_element;
 	let _seekbar;
 
 	const list_item_types = {
@@ -82,9 +85,31 @@ function UI(_library) {
 		});
 	};
 
-	const _openFile = (playlist, song = null) => {
+	const _createPathFromPlaylist = (playlist) => {
+		const ret = [];
+		if(playlist) {
+			for(let current = playlist; current != null; current = current.parent) {
+				ret.unshift(current);
+			}
+		}
+		return ret;
+	}
+
+	const _findPlaylistFromPathString = (path_str) => {
+		const path = path_str.split("\x00").slice(-2);
+		const playlists = _library.getPlaylists();
+		let found_playlist;
+		if(path.length > 1) { //has parent
+			found_playlist = playlists.find(x => x.parent && x.parent.name === path[0] && x.name === path[1]);
+		} else {
+			found_playlist = playlists.find(x => x.parent === null & x.name === path[0]);
+		}
+		return found_playlist;
+	}
+
+	const _openFile = async (playlist, song = null) => {
 		if(!song) song = playlist.songs[0];
-		AudioManager.setPlaylist(playlist, song);
+		await AudioManager.setPlaylist(playlist, song);
 	};
 
 	const _openFolder = (playlist) => {
@@ -96,12 +121,13 @@ function UI(_library) {
 				throw `"${playlist}" is an invalid playlist`;
 			}
 
+			const playlist_path = _createPathFromPlaylist(playlist);
 			let go_back_func = () => _openFolder();
 			_top_dock_path.append(_createPathItem(`${playlist.name}/`, () => _openFolder(playlist)));
 
-			for(let current = playlist.parent; current != null; current = current.parent) {
-				go_back_func = () => _openFolder(current);
-				const next = _createPathItem(`${current.name}/`, () => _openFolder(current));
+			for(const x of playlist_path.slice(0, -1)) {
+				go_back_func = () => _openFolder(x);
+				const next = _createPathItem(`${x.name}/`, () => _openFolder(x));
 
 				_top_dock_path.insertBefore(next, _top_dock_path.children[_top_dock_path.children.length-1]);
 			}
@@ -109,7 +135,7 @@ function UI(_library) {
 			const go_back_elem = _createListItem("..", go_back_func);
 			_content_container.append(go_back_elem);
 
-			const folder_structure = _top_dock_path.innerText.slice(1, -1).replace(/\//g, "\x00");
+			const folder_structure = playlist_path.map(x => x.name).join("\x00");
 			URLManager.updateParam(URLManager.params.folder, folder_structure);
 
 			switch(playlist.type) {
@@ -191,46 +217,59 @@ function UI(_library) {
 	const constructor = () => {
 		_content_container = Elements.find('#content');
 		_currently_playing_elem = Elements.find('#currently-playing');
+		_shuffle_element = Elements.find('#shuffle');
 		_play_pause_button = Elements.find('#play-pause');
+		_repeat_element = Elements.find('#repeat');
+		_gain_element = Elements.find('#gain');
 		_top_dock_path = Elements.find('#top-dock .path');
 		_seekbar = Elements.find('#seekbar');
 
 		_play_pause_button.onclick = (e) => {if(AudioManager.state() !== play_pause_icons.stopped) AudioManager.togglePlayPause(); return false;}
 		_seekbar.onmousedown = (e) => {AudioManager.seekPercent(e.clientX / window.innerWidth * 100); return false;}
 
-		const gain_element = Elements.find('#gain');
-		const shuffle_element = Elements.find('#shuffle');
-		const repeat_element = Elements.find('#repeat');
-
 		Elements.find('#root').onclick = () => {_openFolder(); return false;} //root path
-		gain_element.oninput = () => {
-			AudioManager.gain(parseInt(gain_element.value));
+		_gain_element.oninput = () => {
+			AudioManager.gain(parseInt(_gain_element.value));
 			URLManager.updateParam(URLManager.params.gain, gain_element.value);
 		}
 
 		Elements.find('#previous').onclick = (e) => {AudioManager.previous(); return false;}
 		Elements.find('#next').onclick = (e) => {AudioManager.next(); return false;}
 
-		shuffle_element.onclick = () => {
+		_shuffle_element.onclick = () => {
 			const previous_state = AudioManager.shuffle();
 			const new_state = AudioManager.shuffle(!previous_state);
-			shuffle_element.innerText = shuffle_icons[new_state] || shuffle_icons.false;
+			_shuffle_element.innerText = shuffle_icons[new_state] || shuffle_icons.false;
 			URLManager.updateParam(URLManager.params.shuffle, new_state);
 			return false;
 		};
 
-		repeat_element.onclick = () => {
+		_repeat_element.onclick = () => {
 			const previous_state = AudioManager.repeat();
 			let index = repeat_icon_states.indexOf(previous_state);
 			if(++index > repeat_icon_states.length-1) index = 0;
 			const new_state = AudioManager.repeat(repeat_icon_states[index]);
-			repeat_element.innerText = repeat_icons[new_state] || repeat_icons.none;
+			_repeat_element.innerText = repeat_icons[new_state] || repeat_icons.none;
 			URLManager.updateParam(URLManager.params.repeat, new_state);
 			return false;
 		};
+	};
 
-		//apply client settings from query params
+	this.parseConfig = () => {
 		const params = URLManager.getParams();
+		if(params.loadedplaylist !== undefined) {
+			if(params.loadedsong !== undefined) {
+				const found_playlist = _findPlaylistFromPathString(params.loadedplaylist);
+				const found_song = _library.getSongs().find(x => x.metadata_hash === params.loadedsong);
+				if(found_playlist && found_song) {
+					(async () => {
+						await _openFile(found_playlist, found_song);
+						AudioManager.pause();
+					})();
+				}
+			}
+		}
+
 		if(params.playlist !== undefined) {
 			for(const x of params.playlist) {
 				console.log("Playlist code", x);
@@ -250,35 +289,27 @@ function UI(_library) {
 		}
 
 		if(params.gain !== undefined) {
-			gain_element.value = params.gain;
+			_gain_element.value = params.gain;
 			AudioManager.gain(parseInt(params.gain));
 		}
 
 		if(params.shuffle !== undefined) {
-			shuffle_element.innerText = shuffle_icons[params.shuffle];
+			_shuffle_element.innerText = shuffle_icons[params.shuffle];
 			AudioManager.shuffle(params.shuffle);
 		}
 
 		if(params.repeat !== undefined) {
 			const index = repeat_icon_states.indexOf(params.repeat);
 			if(index !== -1) {
-				repeat_element.innerText = repeat_icons[params.repeat];
+				_repeat_element.innerText = repeat_icons[params.repeat];
 				AudioManager.repeat(params.repeat);
 			}
 		}
 
 		if(params.folder !== undefined) {
-			const path = params.folder.split("\x00").slice(-2);
-			const playlists = _library.getPlaylists();
-			let found_playlist;
-			if(path.length > 1) { //has parent
-				found_playlist = playlists.find(x => x.parent && x.parent.name === path[0] && x.name === path[1]);
-			} else {
-				found_playlist = playlists.find(x => x.parent === null & x.name === path[0]);
-			}
+			const found_playlist = _findPlaylistFromPathString(params.folder);
 			if(found_playlist) {
-				_openFolder(found_playlist);
-				return; //don't open root folder below
+				return _openFolder(found_playlist); //return so it doesn't open root
 			}
 		}
 
@@ -298,6 +329,8 @@ function UI(_library) {
 			_currently_playing_elem.title = _currently_playing_elem.innerText;
 			_currently_playing_elem.onclick = () => false;
 			if(previous) previous.classList.remove("playing");
+			URLManager.deleteParam(URLManager.params.loadedplaylist);
+			URLManager.deleteParam(URLManager.params.loadedsong);
 			return;
 		}
 
@@ -306,6 +339,9 @@ function UI(_library) {
 		_currently_playing_elem.onclick = () => {_openFolder(playlist); return false;}
 
 		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
+		const playlist_path_str = _createPathFromPlaylist(playlist).map(x => x.name).join("\x00");
+		URLManager.updateParam(URLManager.params.loadedplaylist, playlist_path_str);
+		URLManager.updateParam(URLManager.params.loadedsong, song.metadata_hash);
 
 		if(previous) { //playing, only change if playlist changed
 			const is_playlist = previous.getAttribute("type") === list_item_types.playlist;

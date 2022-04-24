@@ -6,7 +6,9 @@ import fs from "fs";
 import path from "path";
 import url from "url";
 import * as settings from "./settings.mjs";
+
 import * as metadata from "music-metadata";
+import farmhash from "farmhash";
 
 //musicbrainz picard tagged files expected
 
@@ -26,6 +28,7 @@ function createPlaylistObject(name, song_ids = [], type = "created", created = 0
 
 function createSongObject(filepath, song_data) {
 	return {
+		metadata_hash: "nohash", //don't rely on this for finding songs - use uri if possible as it is guaranteed to be unique
 		artist: song_data.common.artist,
 		album: song_data.common.album,
 		title: song_data.common.title,
@@ -115,6 +118,8 @@ async function generateLibraryCache() {
 					let song_metadata = song_metadata_cache[file_uri];
 					if(song_metadata === undefined) {
 						song_metadata = createSongObject(file_uri, await metadata.parseFile(file_path));
+						const hash = farmhash.fingerprint64(JSON.stringify(song_metadata));
+						song_metadata.metadata_hash = BigInt(hash).toString(16);
 						song_metadata_cache[file_uri] = song_metadata;
 					}
 					return song_metadata;

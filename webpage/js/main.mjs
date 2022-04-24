@@ -14,6 +14,8 @@ try {
 	AudioManager.bindPlayPause(ui.updatePlayPause);
 	AudioManager.bindTimeUpdate(ui.updateSeek);
 
+	ui.parseConfig();
+
 	window.onkeydown = (e) => {
 		switch(e.key) {
 			case "j":

@@ -6,6 +6,8 @@ function URLManager() {
 		bgcolour: "bgcolour",
 		dockcolour: "dockcolour",
 
+		loadedplaylist: "loadedplaylist",
+		loadedsong: "loadedsong",
 		gain: "gain",
 		shuffle: "shuffle",
 		repeat: "repeat",
@@ -18,6 +20,8 @@ function URLManager() {
 		bgcolour: "colour",
 		dockcolour: "colour",
 
+		loadedplaylist: "string",
+		loadedsong: "string",
 		gain: "number",
 		shuffle: "boolean",
 		repeat: "string",
