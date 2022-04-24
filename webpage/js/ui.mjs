@@ -92,9 +92,9 @@ function UI(_library) {
 		Array.from(_top_dock_path.children).slice(1).map(x => x.outerHTML = "");
 
 		if(playlist) {
-			URLManager.updateParam("playlist", `${playlist.type}\x00${playlist.name}`);
+			URLManager.updateParam(URLManager.params.folder, `${playlist.type}\x00${playlist.name}`);
 		} else {
-			URLManager.deleteParam("playlist");
+			URLManager.deleteParam(URLManager.params.folder);
 		}
 
 		if(playlist !== undefined) { //list songs
@@ -232,6 +232,24 @@ function UI(_library) {
 
 		//apply client settings from query params
 		const params = URLManager.getParams();
+		if(params.playlist !== undefined) {
+			for(const x of params.playlist) {
+				console.log("Playlist code", x);
+			}
+		}
+
+		if(params.fgcolour !== undefined) {
+			document.body.style.setProperty("--text-colour", params.fgcolour);
+		}
+
+		if(params.bgcolour !== undefined) {
+			document.body.style.setProperty("--background", params.bgcolour);
+		}
+
+		if(params.dockcolour !== undefined) {
+			document.body.style.setProperty("--dock-background", params.dockcolour);
+		}
+
 		if(params.gain !== undefined) {
 			gain_element.value = params.gain;
 			AudioManager.gain(parseInt(params.gain));
@@ -250,8 +268,8 @@ function UI(_library) {
 			}
 		}
 
-		if(params.playlist !== undefined) {
-			const [type, name] = params.playlist.split("\x00");
+		if(params.folder !== undefined) {
+			const [type, name] = params.folder.split("\x00");
 			const found_playlist = _library.getPlaylists().find(x => x.type === type && x.name === name);
 			if(found_playlist) {
 				_openFolder(found_playlist);
@@ -262,7 +280,7 @@ function UI(_library) {
 		_openFolder();
 	};
 
-	//these are bound to AudioManager events
+	//these are bound to AudioManager events by main.mjs
 	this.updatePlayPause = async (current_state) => {
 		_play_pause_button.innerText = play_pause_icons[current_state] ?? play_pause_icons.stopped;
 	};

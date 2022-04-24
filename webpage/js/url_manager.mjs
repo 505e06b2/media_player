@@ -2,17 +2,27 @@
 
 function URLManager() {
 	this.params = {
+		fgcolour: "fgcolour",
+		bgcolour: "bgcolour",
+		dockcolour: "dockcolour",
+
 		gain: "gain",
 		shuffle: "shuffle",
 		repeat: "repeat",
+		folder: "folder",
 		playlist: "playlist"
 	};
 
 	const _param_types = {
+		fgcolour: "colour",
+		bgcolour: "colour",
+		dockcolour: "colour",
+
 		gain: "number",
 		shuffle: "boolean",
 		repeat: "string",
-		playlist: "string"
+		folder: "string",
+		playlist: "pastebin_code_array"
 	};
 
 	this.getRawParams = () => {
@@ -26,7 +36,7 @@ function URLManager() {
 	this.getParams = () => {
 		const ret = {};
 		for(const [name, value] of this.getRawParams()) {
-			let typed_value = value;
+			let typed_value;
 
 			switch(_param_types[name]) {
 				case "boolean":
@@ -40,6 +50,21 @@ function URLManager() {
 					if(isNaN(number_value) === false) typed_value = number_value;
 					else continue;
 					break;
+
+				case "colour":
+					if(CSS.supports("color", value)) typed_value = value;
+					else continue;
+					break;
+
+				case "pastebin_code_array":
+					if(value) {
+						if(ret[name] === undefined) ret[name] = [];
+						ret[name].push(value);
+					}
+					continue; //force full control of this
+
+				default:
+					if(value) typed_value = value;
 			}
 
 			ret[name] = typed_value;
@@ -57,7 +82,7 @@ function URLManager() {
 	this.deleteParam = (name) => {
 		const current_params = this.getRawParams();
 		current_params.delete(name);
-		const new_url = `${location.pathname}?${current_params}`;
+		const new_url = Array.from(current_params.keys()).length > 0 ? `${location.pathname}?${current_params}` : location.pathname;
 		history.replaceState(null, "", new_url);
 	}
 }

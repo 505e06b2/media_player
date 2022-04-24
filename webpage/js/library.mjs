@@ -18,8 +18,6 @@ export const Library = {
 		this.getSongs = () => _songs;
 
 		const constructor = () => {
-			//will currently only work if ids are indeces
-
 			//init songs
 			for(const song_data of api_response.songs) {
 				_songs.push(Object.assign(new Library.Song(), song_data));
@@ -58,7 +56,6 @@ export const Library = {
 		this.getTopLevelPlaylists = () => _playlists.filter(x => !x.parent);
 
 		constructor();
-		console.log(_playlists);
 	}
 }
 
