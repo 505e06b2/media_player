@@ -268,9 +268,9 @@ function UI(_library) {
 		}
 
 		if(params.folder !== undefined) {
-			const path = params.folder.split("\x00");
+			const path = params.folder.split("\x00").slice(-2);
 			const playlists = _library.getPlaylists();
-			let found_playlist
+			let found_playlist;
 			if(path.length > 1) { //has parent
 				found_playlist = playlists.find(x => x.parent && x.parent.name === path[0] && x.name === path[1]);
 			} else {
@@ -278,7 +278,7 @@ function UI(_library) {
 			}
 			if(found_playlist) {
 				_openFolder(found_playlist);
-				return; //don't open root folder
+				return; //don't open root folder below
 			}
 		}
 
