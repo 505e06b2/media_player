@@ -34,7 +34,7 @@ function AudioManager() {
 
 	this.getPlaylist = () => _current_playlist;
 
-	this.setPlaylist = (playlist, song = null) => {
+	this.setPlaylist = async (playlist, song = null) => {
 		this.pause();
 
 		_playlist_index = -1;
@@ -44,7 +44,7 @@ function AudioManager() {
 			_playlist_index--;
 		}
 		_current_playlist = playlist;
-		_playNext(false, true);
+		await _playNext(false, true);
 	};
 
 	const constructor = () => {

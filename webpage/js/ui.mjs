@@ -91,12 +91,6 @@ function UI(_library) {
 		_content_container.innerHTML = "";
 		Array.from(_top_dock_path.children).slice(1).map(x => x.outerHTML = "");
 
-		if(playlist) {
-			URLManager.updateParam(URLManager.params.folder, `${playlist.type}\x00${playlist.name}`);
-		} else {
-			URLManager.deleteParam(URLManager.params.folder);
-		}
-
 		if(playlist !== undefined) { //list songs
 			if(playlist instanceof(Library.Playlist) === false) {
 				throw `"${playlist}" is an invalid playlist`;
@@ -114,6 +108,9 @@ function UI(_library) {
 
 			const go_back_elem = _createListItem("..", go_back_func);
 			_content_container.append(go_back_elem);
+
+			const folder_structure = _top_dock_path.innerText.slice(1, -1).replace(/\//g, "\x00");
+			URLManager.updateParam(URLManager.params.folder, folder_structure);
 
 			switch(playlist.type) {
 				case "artist":
@@ -179,6 +176,8 @@ function UI(_library) {
 					));
 				}
 			}
+
+			URLManager.deleteParam(URLManager.params.folder);
 		}
 
 		const currently_playing = Elements.find('#content .playing');
@@ -269,8 +268,14 @@ function UI(_library) {
 		}
 
 		if(params.folder !== undefined) {
-			const [type, name] = params.folder.split("\x00");
-			const found_playlist = _library.getPlaylists().find(x => x.type === type && x.name === name);
+			const path = params.folder.split("\x00");
+			const playlists = _library.getPlaylists();
+			let found_playlist
+			if(path.length > 1) { //has parent
+				found_playlist = playlists.find(x => x.parent && x.parent.name === path[0] && x.name === path[1]);
+			} else {
+				found_playlist = playlists.find(x => x.parent === null & x.name === path[0]);
+			}
 			if(found_playlist) {
 				_openFolder(found_playlist);
 				return; //don't open root folder
