@@ -320,20 +320,14 @@ function UI(_library) {
 		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
 		URLManager.updateParam(URLManager.params.nowplaying, FolderPath.fromPlaylist(playlist).appendSong(song));
 
-		if(previous) { //playing, only change if playlist changed
-			const is_playlist = previous.getAttribute("type") === list_item_types.playlist;
-			const playlist_is_playing = previous.innerHTML.endsWith(playlist.name);
-			if(is_playlist && playlist_is_playing) return;
-			previous.classList.remove("playing");
+		const folder_path = URLManager.getParams().folder;
+		const playlist_folder_path = FolderPath.fromPlaylist(playlist).toString();
 
-		} else { //stopped, only highlight song if inside playlist
-			const playlists_on_page = document.querySelectorAll(`#content a[type="${list_item_types.playlist}"]`);
-			const playlist_names = Array.from(playlists_on_page).map(x => x.getAttribute("plain-text"));
-			if(playlist_names.includes(playlist.name)) return;
+		if(folder_path === playlist_folder_path) { //currently playing playlist is open
+			if(previous) previous.classList.remove("playing");
+			const current = Elements.find(`#content a[uri="${song.uri}"]`);
+			if(current) current.classList.add("playing");
 		}
-
-		const current = Elements.find(`#content a[uri="${song.uri}"]`);
-		if(current) current.classList.add("playing");
 	};
 
 	this.updateSeek = async (percent, current_time) => {
