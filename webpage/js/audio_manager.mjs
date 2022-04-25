@@ -174,7 +174,7 @@ function AudioManager() {
 
 	this.gain = (set_percent_value) => {
 		if(set_percent_value === undefined) return _gain_node.gain.value;
-		_gain_node.gain.value = 1 - Math.pow(10, -set_percent_value/100);
+		_gain_node.gain.value = Math.pow(10, (-100+set_percent_value)/35);
 		return _gain_node.gain.value;
 	};
 
