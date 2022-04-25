@@ -236,6 +236,18 @@ function UI(_library) {
 
 	this.parseConfig = async () => {
 		const params = URLManager.getParams();
+		if(params.fgcolour !== undefined) {
+			document.body.style.setProperty("--text-colour", params.fgcolour);
+		}
+
+		if(params.bgcolour !== undefined) {
+			document.body.style.setProperty("--background", params.bgcolour);
+		}
+
+		if(params.dockcolour !== undefined) {
+			document.body.style.setProperty("--dock-background", params.dockcolour);
+		}
+
 		if(params.playlist !== undefined) {
 			for(const code of params.playlist) {
 				await _library.addRemotePlaylist(code);
@@ -250,20 +262,9 @@ function UI(_library) {
 				(async () => {
 					await _openFile(found_playlist, found_song);
 					AudioManager.pause();
+					_play_pause_button.innerText = play_pause_icons["paused"]; //the pause doesn't always send an event since the playing is done without interaction (and fails)
 				})();
 			}
-		}
-
-		if(params.fgcolour !== undefined) {
-			document.body.style.setProperty("--text-colour", params.fgcolour);
-		}
-
-		if(params.bgcolour !== undefined) {
-			document.body.style.setProperty("--background", params.bgcolour);
-		}
-
-		if(params.dockcolour !== undefined) {
-			document.body.style.setProperty("--dock-background", params.dockcolour);
 		}
 
 		if(params.gain !== undefined) {

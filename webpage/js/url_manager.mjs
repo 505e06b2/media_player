@@ -6,12 +6,12 @@ function URLManager() {
 		bgcolour: "bgcolour",
 		dockcolour: "dockcolour",
 
+		playlist: "playlist",
 		nowplaying: "nowplaying",
 		gain: "gain",
 		shuffle: "shuffle",
 		repeat: "repeat",
-		folder: "folder",
-		playlist: "playlist"
+		folder: "folder"
 	};
 
 	const _param_types = {
@@ -19,12 +19,12 @@ function URLManager() {
 		bgcolour: "colour",
 		dockcolour: "colour",
 
+		playlist: "pastebin_code_array",
 		nowplaying: "string",
 		gain: "number",
 		shuffle: "boolean",
 		repeat: "string",
-		folder: "string",
-		playlist: "pastebin_code_array"
+		folder: "string"
 	};
 
 	this.getRawParams = () => {
