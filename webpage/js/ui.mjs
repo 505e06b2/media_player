@@ -307,6 +307,8 @@ function UI(_library) {
 			_currently_playing_elem.title = _currently_playing_elem.innerText;
 			_currently_playing_elem.onclick = () => false;
 			if(previous) previous.classList.remove("playing");
+
+			document.title = "𝚖𝚎𝚍𝚒𝚊_𝚙𝚕𝚊𝚢𝚎𝚛";
 			URLManager.deleteParam(URLManager.params.nowplaying);
 			return;
 		}
