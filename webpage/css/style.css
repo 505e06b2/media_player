@@ -54,8 +54,6 @@ a {
 #content {
 	margin-top: calc(var(--dock-height) + 10px);
 	margin-bottom: calc(var(--dock-height) + 10px);
-	margin-left: 20px;
-	margin-right: 20px;
 }
 
 @media (orientation: portrait) {
@@ -71,7 +69,8 @@ a {
 	word-break: break-word;
 	white-space: pre-wrap;
 	text-indent: -62px;
-	padding-left: 62px;
+	padding-left: 72px;
+	padding-right: 10px;
 }
 
 #content .playing {
