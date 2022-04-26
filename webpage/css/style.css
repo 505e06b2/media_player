@@ -3,7 +3,6 @@
 	--text-colour: rgb(31, 255, 80);
 	--dock-background: rgb(2, 51, 0);
 	--dock-height: 40px;
-	--dock-border: 3px solid var(--text-colour);
 	--font-family: "IBM", "Courier New", Courier, monospace;
 }
 
@@ -30,8 +29,7 @@ a {
 }
 
 #top-dock {
-	border-bottom: var(--dock-border);
-	border-color: var(--text-colour);
+	border-bottom: 3px solid var(--text-colour);
 	top: 0px;
 	overflow-x: auto;
 	word-break: keep-all;
@@ -80,8 +78,7 @@ a {
 
 #bottom-dock {
 	bottom: 0px;
-	border-top: var(--dock-border);
-	border-color: var(--text-colour);
+	border-top: 3px solid var(--text-colour);
 	white-space: nowrap;
 }
 
