@@ -18,8 +18,6 @@ function UI(_library) {
 	let _gain_element;
 	let _seekbar;
 
-	let _favicon;
-
 	const list_item_types = {
 		playlist: "playlist",
 		song: "song",
@@ -253,8 +251,7 @@ function UI(_library) {
 			document.body.style.setProperty("--dock-background", params.dockcolour);
 		}
 
-		_favicon = await generateSVGFavicon();
-		_favicon.setColours(document.body.style.getPropertyValue("--text-colour"), document.body.style.getPropertyValue("--dock-background"));
+		generateSVGFavicon(document.body.style.getPropertyValue("--text-colour"), document.body.style.getPropertyValue("--dock-background"));
 
 		if(params.playlist !== undefined) {
 			await _library.addRemotePlaylists(params.playlist);
