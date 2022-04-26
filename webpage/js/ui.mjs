@@ -19,7 +19,8 @@ function UI(_library) {
 
 	const list_item_types = {
 		playlist: "playlist",
-		song: "song"
+		song: "song",
+		button: "button"
 	};
 
 	const shuffle_icons = {
@@ -51,7 +52,8 @@ function UI(_library) {
 		});
 
 		if(onclickHandler) {
-			elem.href = list_item_data.song ? list_item_data.song.uri : `#${plaintext}`;
+			elem.setAttribute("type", list_item_types.button);
+			if(list_item_data.song) elem.href = list_item_data.song.uri;
 			elem.onclick = (e) => {onclickHandler(); return false;}
 		}
 
