@@ -249,9 +249,7 @@ function UI(_library) {
 		}
 
 		if(params.playlist !== undefined) {
-			for(const code of params.playlist) {
-				await _library.addRemotePlaylist(code);
-			}
+			await _library.addRemotePlaylists(params.playlist);
 		}
 
 		if(params.nowplaying !== undefined) {
