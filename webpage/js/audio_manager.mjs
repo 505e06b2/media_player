@@ -86,6 +86,9 @@ function AudioManager() {
 			if(e instanceof(DOMException)) {
 				if(e.message.includes("interrupted by a new load request")) return; //selected a new song, while the old one was loading
 				else if(e.message.includes("interrupted by a call to pause()")) ; //IGNORE/NO-OP - same as above, but thrown for the new song?
+				else if(e.message.includes("user didn't interact with the document")) {
+					_audio.onpause(); //called specifically for _play_pause_callback
+				}
 				else console.trace(e);
 			} else {
 				console.trace(e);

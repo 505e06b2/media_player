@@ -262,7 +262,6 @@ function UI(_library) {
 				(async () => {
 					await _openFile(found_playlist, found_song);
 					AudioManager.pause();
-					_play_pause_button.innerText = play_pause_icons["paused"]; //the pause doesn't always send an event since the playing is done without interaction (and fails)
 				})();
 			}
 		}
