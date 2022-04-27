@@ -3,6 +3,7 @@
 import LibraryManager from "./library_manager.mjs";
 import URLManager from "./url_manager.mjs";
 import IconManager from "./icon_manager.mjs";
+import UIManager from "./ui_manager.mjs";
 
 function ConfigManager() {
 	this.params = URLManager.params;
@@ -11,7 +12,7 @@ function ConfigManager() {
 	this.setValue = URLManager.updateParam;
 	this.removeValue = URLManager.deleteParam;
 
-	this.loadConfig = async (ui) => {
+	this.loadConfig = async () => {
 		const params = URLManager.getParams();
 		if(params.fgcolour !== undefined) {
 			document.body.style.setProperty("--fg-colour", params.fgcolour);
@@ -32,22 +33,22 @@ function ConfigManager() {
 		}
 
 		if(params.nowplaying !== undefined) {
-			ui.setNowPlaying(params.nowplaying);
+			UIManager.setNowPlaying(params.nowplaying);
 		}
 
 		if(params.gain !== undefined) {
-			ui.setGainValue(params.gain);
+			UIManager.setGainValue(params.gain);
 		}
 
 		if(params.shuffle !== undefined) {
-			ui.setShuffleState(params.shuffle);
+			UIManager.setShuffleState(params.shuffle);
 		}
 
 		if(params.repeat !== undefined) {
-			ui.setRepeatState(params.repeat);
+			UIManager.setRepeatState(params.repeat);
 		}
 
-		ui.openFolder(params.folder);
+		UIManager.openFolder(params.folder);
 	};
 }
 

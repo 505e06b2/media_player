@@ -7,7 +7,7 @@ import AudioManager from "./audio_manager.mjs";
 import FolderPath from "./folder_path.mjs";
 import ConfigManager from "./config_manager.mjs";
 
-function UI() {
+function UIManager() {
 	let _content_container;
 	let _top_dock_path;
 	let _currently_playing_elem;
@@ -315,4 +315,4 @@ function UI() {
 	constructor();
 }
 
-export default UI;
+export default new UIManager();

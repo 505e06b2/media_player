@@ -3,16 +3,14 @@
 import Elements from "./elements.mjs";
 import AudioManager from "./audio_manager.mjs";
 import ConfigManager from "./config_manager.mjs";
-import UI from "./ui.mjs";
+import UIManager from "./ui_manager.mjs";
 
 try {
-	const ui = new UI();
+	AudioManager.bindNewTrack(UIManager.updateCurrentlyPlaying);
+	AudioManager.bindPlayPause(UIManager.updatePlayPause);
+	AudioManager.bindTimeUpdate(UIManager.updateSeek);
 
-	AudioManager.bindNewTrack(ui.updateCurrentlyPlaying);
-	AudioManager.bindPlayPause(ui.updatePlayPause);
-	AudioManager.bindTimeUpdate(ui.updateSeek);
-
-	await ConfigManager.loadConfig(ui);
+	await ConfigManager.loadConfig();
 
 	window.onkeydown = (e) => {
 		switch(e.key) {
