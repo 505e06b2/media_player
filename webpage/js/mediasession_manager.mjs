@@ -13,11 +13,9 @@ function MediaSessionManager() {
 	};
 
 	const _updateMetadata = (playlist, song) => {
-		window.metadata = {
-			title: song.title,
-			artist: song.artist,
-			album: playlist.name,
-		};
+		window.metadata.title = song.title;
+		window.metadata.artist = song.artist;
+		window.metadata.album = playlist.name;
 	};
 
 	if(navigator.mediaSession) {
