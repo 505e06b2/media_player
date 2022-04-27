@@ -1,7 +1,7 @@
 :root {
-	--background: rgb(10, 10, 10);
-	--text-colour: rgb(31, 255, 80);
-	--dock-background: rgb(2, 51, 0);
+	--bg-colour: rgb(10, 10, 10);
+	--fg-colour: rgb(31, 255, 80);
+	--dock-colour: rgb(2, 51, 0);
 	--dock-height: 40px;
 	--font-family: "IBM", "Courier New", Courier, monospace;
 }
@@ -12,8 +12,8 @@
 }
 
 body {
-	background: var(--background);
-	color: var(--text-colour);
+	background: var(--bg-colour);
+	color: var(--fg-colour);
 	font-family: var(--font-family);
 	margin: 0px;
 	padding: 0px;
@@ -29,7 +29,7 @@ a {
 }
 
 #top-dock {
-	border-bottom: 3px solid var(--text-colour);
+	border-bottom: 3px solid var(--fg-colour);
 	top: 0px;
 	overflow-x: auto;
 	word-break: keep-all;
@@ -77,13 +77,13 @@ a {
 }
 
 #content .playing {
-	background: var(--text-colour);
-	color: var(--background);
+	background: var(--fg-colour);
+	color: var(--bg-colour);
 }
 
 #bottom-dock {
 	bottom: 0px;
-	border-top: 3px solid var(--text-colour);
+	border-top: 3px solid var(--fg-colour);
 	white-space: nowrap;
 }
 
@@ -93,7 +93,7 @@ a {
 	cursor: pointer;
 	height: 3px;
 	width: 100vw;
-	border-top: 10px solid var(--background);
+	border-top: 10px solid var(--bg-colour);
 	background: transparent;
 }
 
@@ -169,7 +169,7 @@ a {
 	height: var(--dock-height);
 	left: 0px;
 	right: 0px;
-	background: var(--dock-background);
+	background: var(--dock-colour);
 	align-items: center;
 }
 

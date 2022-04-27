@@ -3,9 +3,9 @@ body::-webkit-scrollbar {
 }
 
 body::-webkit-scrollbar-track {
-	background: var(--dock-background);
+	background: var(--dock-colour);
 }
 
 body::-webkit-scrollbar-thumb {
-	background: var(--text-colour);
+	background: var(--fg-colour);
 }

@@ -238,18 +238,18 @@ function UI(_library) {
 	this.parseConfig = async () => {
 		const params = URLManager.getParams();
 		if(params.fgcolour !== undefined) {
-			document.body.style.setProperty("--text-colour", params.fgcolour);
+			document.body.style.setProperty("--fg-colour", params.fgcolour);
 		}
 
 		if(params.bgcolour !== undefined) {
-			document.body.style.setProperty("--background", params.bgcolour);
+			document.body.style.setProperty("--bg-colour", params.bgcolour);
 		}
 
 		if(params.dockcolour !== undefined) {
-			document.body.style.setProperty("--dock-background", params.dockcolour);
+			document.body.style.setProperty("--dock-colour", params.dockcolour);
 		}
 
-		IconManager.setColours(document.body.style.getPropertyValue("--text-colour"), document.body.style.getPropertyValue("--dock-background"));
+		IconManager.setColours(document.body.style.getPropertyValue("--fg-colour"), document.body.style.getPropertyValue("--dock-colour"));
 
 		if(params.playlist !== undefined) {
 			await _library.addRemotePlaylists(params.playlist);
@@ -332,7 +332,7 @@ function UI(_library) {
 	};
 
 	this.updateSeek = async (percent, current_time) => {
-		_seekbar.style.background = `linear-gradient(to right, var(--text-colour) 0%, var(--text-colour) ${percent}%, var(--dock-background) ${percent}%, var(--dock-background) 100%)`;
+		_seekbar.style.background = `linear-gradient(to right, var(--fg-colour) 0%, var(--fg-colour) ${percent}%, var(--dock-colour) ${percent}%, var(--dock-colour) 100%)`;
 	};
 
 	constructor();
