@@ -71,7 +71,8 @@ a {
 	padding-right: 10px;
 }
 
-#content.list a[type] {
+#content.list a[type],
+#top-dock a {
 	cursor: pointer;
 }
 

@@ -1,7 +1,7 @@
 "use strict";
 
 import UnicodeMonospace from "./unicode_monospace.mjs";
-import SVGIcon from "./svg_icon.mjs";
+import IconManager from "./icon_manager.mjs";
 
 //seems unreliable for some reason - first played track works, every other (at a random point) doesn't
 
@@ -32,7 +32,7 @@ function MediaSessionManager() {
 				title: UnicodeMonospace.convert(song.title),
 				artist: song.artist,
 				album: playlist.name,
-				artwork: [{src: SVGIcon.getIcon()}]
+				artwork: [{src: IconManager.getIcon()}]
 			});
 		};
 

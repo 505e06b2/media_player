@@ -3,7 +3,7 @@ import Elements from "./elements.mjs";
 const fallback_icon_path = "icon.png";
 const icon_path = "icon.svg";
 
-function SVGIcon() {
+function IconManager() {
 	let _fg_colour = "#1fff50";
 	let _bg_colour = "#023300";
 	let _svg = null;
@@ -45,4 +45,4 @@ function SVGIcon() {
 	constructor();
 }
 
-export default new SVGIcon();
+export default new IconManager();
