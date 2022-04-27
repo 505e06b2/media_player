@@ -1,17 +1,11 @@
 "use strict";
 
+import LibraryManager from "./library_manager.mjs";
 import URLManager from "./url_manager.mjs";
 import IconManager from "./icon_manager.mjs";
 
 function ConfigManager() {
-	let _library;
-
 	this.params = URLManager.params;
-
-	this.setLibrary = (library) => {
-		_library = library;
-		return this;
-	};
 
 	this.getValue = (name) => URLManager.getParams()[name];
 	this.setValue = URLManager.updateParam;
@@ -34,7 +28,7 @@ function ConfigManager() {
 		IconManager.setColours(document.body.style.getPropertyValue("--fg-colour"), document.body.style.getPropertyValue("--dock-colour"));
 
 		if(params.playlist !== undefined) {
-			await _library.addRemotePlaylists(params.playlist);
+			await LibraryManager.addRemotePlaylists(params.playlist);
 		}
 
 		if(params.nowplaying !== undefined) {

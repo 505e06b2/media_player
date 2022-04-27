@@ -1,13 +1,13 @@
 "use strict";
 
 import UnicodeMonospace from "./unicode_monospace.mjs";
-import Library from "./library.mjs";
+import LibraryManager from "./library_manager.mjs";
 import Elements from "./elements.mjs";
 import AudioManager from "./audio_manager.mjs";
 import FolderPath from "./folder_path.mjs";
 import ConfigManager from "./config_manager.mjs";
 
-function UI(_library) {
+function UI() {
 	let _content_container;
 	let _top_dock_path;
 	let _currently_playing_elem;
@@ -43,9 +43,9 @@ function UI(_library) {
 
 	this.setNowPlaying = (value) => {
 		const folder_path = FolderPath.fromString(value);
-		const found_playlist = folder_path.findPlaylist(_library.getPlaylists());
+		const found_playlist = folder_path.findPlaylist(LibraryManager.getPlaylists());
 		if(found_playlist) {
-			const found_song = _library.getSongs().find(x => x.metadata_hash === folder_path.song_hash()); //collisions are not important
+			const found_song = LibraryManager.getSongs().find(x => x.metadata_hash === folder_path.song_hash()); //collisions are not important
 			(async () => {
 				await _openFile(found_playlist, found_song);
 				AudioManager.pause();
@@ -170,17 +170,17 @@ function UI(_library) {
 		Array.from(_top_dock_path.children).slice(1).map(x => x.outerHTML = "");
 
 		if(typeof(playlist) === "string") {
-			const found_playlist = FolderPath.fromString(playlist).findPlaylist(_library.getPlaylists());
+			const found_playlist = FolderPath.fromString(playlist).findPlaylist(LibraryManager.getPlaylists());
 			playlist = found_playlist ? found_playlist : undefined;
 		}
 
 		if(playlist !== undefined) { //list songs
-			if(playlist instanceof(Library.Playlist) === false) {
+			if(playlist instanceof(LibraryManager.Playlist) === false) {
 				throw `"${playlist}" is an invalid playlist`;
 			}
 
 			const playlist_path_structure = FolderPath.fromPlaylist(playlist)
-			const playlist_path = playlist_path_structure.findPlaylistPath(_library.getPlaylists());
+			const playlist_path = playlist_path_structure.findPlaylistPath(LibraryManager.getPlaylists());
 			let go_back_func = () => this.openFolder();
 			_top_dock_path.append(_createPathItem(`${playlist.name}/`, () => this.openFolder(playlist)));
 
@@ -244,7 +244,7 @@ function UI(_library) {
 			}
 
 		} else { //list top level playlists, with children - orphaned and double-nested (Parent->Child->Child) playlists will not appear
-			const top_level = _library.getTopLevelPlaylists();
+			const top_level = LibraryManager.getTopLevelPlaylists();
 			for(const playlist of top_level) {
 				_content_container.append(_createListItem(
 					playlist.name,

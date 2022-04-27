@@ -1,21 +1,18 @@
 "use strict";
 
-import Library from "./library.mjs";
 import Elements from "./elements.mjs";
 import AudioManager from "./audio_manager.mjs";
 import ConfigManager from "./config_manager.mjs";
 import UI from "./ui.mjs";
 
 try {
-	const library = new Library.Library(await (await fetch("api/getLibrary.json")).json());
-
-	const ui = new UI(library);
+	const ui = new UI();
 
 	AudioManager.bindNewTrack(ui.updateCurrentlyPlaying);
 	AudioManager.bindPlayPause(ui.updatePlayPause);
 	AudioManager.bindTimeUpdate(ui.updateSeek);
 
-	await ConfigManager.setLibrary(library).loadConfig(ui);
+	await ConfigManager.loadConfig(ui);
 
 	window.onkeydown = (e) => {
 		switch(e.key) {
