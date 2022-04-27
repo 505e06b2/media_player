@@ -1,3 +1,5 @@
+"use strict";
+
 import Elements from "./elements.mjs";
 
 const fallback_icon_path = "icon.png";

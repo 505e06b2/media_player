@@ -4,9 +4,8 @@ import UnicodeMonospace from "./unicode_monospace.mjs";
 import Library from "./library.mjs";
 import Elements from "./elements.mjs";
 import AudioManager from "./audio_manager.mjs";
-import URLManager from "./url_manager.mjs";
 import FolderPath from "./folder_path.mjs";
-import IconManager from "./icon_manager.mjs";
+import ConfigManager from "./config_manager.mjs";
 
 function UI(_library) {
 	let _content_container;
@@ -41,6 +40,39 @@ function UI(_library) {
 		one: "(1"
 	};
 	const repeat_icon_states = ["none", "playlist", "one"];
+
+	this.setNowPlaying = (value) => {
+		const folder_path = FolderPath.fromString(value);
+		const found_playlist = folder_path.findPlaylist(_library.getPlaylists());
+		if(found_playlist) {
+			const found_song = _library.getSongs().find(x => x.metadata_hash === folder_path.song_hash()); //collisions are not important
+			(async () => {
+				await _openFile(found_playlist, found_song);
+				AudioManager.pause();
+			})();
+		}
+	};
+
+	this.setRepeatState = (state) => {
+		const index = repeat_icon_states.indexOf(state);
+		if(index !== -1) {
+			_repeat_element.innerText = repeat_icons[state];
+			AudioManager.repeat(state);
+		}
+	};
+
+	this.setShuffleState = (state) => {
+		if(typeof(state) !== "boolean") return;
+		_shuffle_element.innerText = shuffle_icons[state];
+		AudioManager.shuffle(state);
+	};
+
+	this.setGainValue = (value) => {
+		const int_value = parseInt(value);
+		if(isNaN(int_value)) return;
+		_gain_element.value = int_value;
+		AudioManager.gain(int_value);
+	};
 
 	const _createBoxIndent = (value, array) => {
 		return (value === array[array.length-1] ? "└" : "├") + "── ";
@@ -92,9 +124,55 @@ function UI(_library) {
 		await AudioManager.setPlaylist(playlist, song);
 	};
 
-	const _openFolder = (playlist) => {
+	const constructor = () => {
+		_content_container = Elements.find('#content');
+		_currently_playing_elem = Elements.find('#currently-playing');
+		_shuffle_element = Elements.find('#shuffle');
+		_play_pause_button = Elements.find('#play-pause');
+		_repeat_element = Elements.find('#repeat');
+		_gain_element = Elements.find('#gain');
+		_top_dock_path = Elements.find('#top-dock .path');
+		_seekbar = Elements.find('#seekbar');
+
+		_play_pause_button.onclick = (e) => {if(AudioManager.state() !== play_pause_icons.stopped) AudioManager.togglePlayPause(); return false;}
+		_seekbar.onmousedown = (e) => {AudioManager.seekPercent(e.clientX / window.innerWidth * 100); return false;}
+
+		Elements.find('#root').onclick = () => {this.openFolder(); return false;} //root path
+		_gain_element.oninput = () => {
+			AudioManager.gain(parseInt(_gain_element.value));
+			ConfigManager.setValue(ConfigManager.params.gain, _gain_element.value);
+		}
+
+		Elements.find('#previous').onclick = (e) => {AudioManager.previous(); return false;}
+		Elements.find('#next').onclick = (e) => {AudioManager.next(); return false;}
+
+		_shuffle_element.onclick = () => {
+			const previous_state = AudioManager.shuffle();
+			const new_state = AudioManager.shuffle(!previous_state);
+			_shuffle_element.innerText = shuffle_icons[new_state] || shuffle_icons.false;
+			ConfigManager.setValue(ConfigManager.params.shuffle, new_state);
+			return false;
+		};
+
+		_repeat_element.onclick = () => {
+			const previous_state = AudioManager.repeat();
+			let index = repeat_icon_states.indexOf(previous_state);
+			if(++index > repeat_icon_states.length-1) index = 0;
+			const new_state = AudioManager.repeat(repeat_icon_states[index]);
+			_repeat_element.innerText = repeat_icons[new_state] || repeat_icons.none;
+			ConfigManager.setValue(ConfigManager.params.repeat, new_state);
+			return false;
+		};
+	};
+
+	this.openFolder = (playlist) => {
 		_content_container.innerHTML = "";
 		Array.from(_top_dock_path.children).slice(1).map(x => x.outerHTML = "");
+
+		if(typeof(playlist) === "string") {
+			const found_playlist = FolderPath.fromString(playlist).findPlaylist(_library.getPlaylists());
+			playlist = found_playlist ? found_playlist : undefined;
+		}
 
 		if(playlist !== undefined) { //list songs
 			if(playlist instanceof(Library.Playlist) === false) {
@@ -103,12 +181,12 @@ function UI(_library) {
 
 			const playlist_path_structure = FolderPath.fromPlaylist(playlist)
 			const playlist_path = playlist_path_structure.findPlaylistPath(_library.getPlaylists());
-			let go_back_func = () => _openFolder();
-			_top_dock_path.append(_createPathItem(`${playlist.name}/`, () => _openFolder(playlist)));
+			let go_back_func = () => this.openFolder();
+			_top_dock_path.append(_createPathItem(`${playlist.name}/`, () => this.openFolder(playlist)));
 
 			for(const x of playlist_path.slice(0, -1)) {
-				go_back_func = () => _openFolder(x);
-				const next = _createPathItem(`${x.name}/`, () => _openFolder(x));
+				go_back_func = () => this.openFolder(x);
+				const next = _createPathItem(`${x.name}/`, () => this.openFolder(x));
 
 				_top_dock_path.insertBefore(next, _top_dock_path.children[_top_dock_path.children.length-1]);
 			}
@@ -116,7 +194,7 @@ function UI(_library) {
 			const go_back_elem = _createListItem("..", go_back_func);
 			_content_container.append(go_back_elem);
 
-			URLManager.updateParam(URLManager.params.folder, playlist_path_structure);
+			ConfigManager.setValue(ConfigManager.params.folder, playlist_path_structure);
 
 			switch(playlist.type) {
 				case "artist":
@@ -126,7 +204,7 @@ function UI(_library) {
 							const indent = _createBoxIndent(child_playlist, playlist.children);
 							_content_container.append(_createListItem(
 								`${indent}${child_playlist.name}`,
-								() => _openFolder(child_playlist),
+								() => this.openFolder(child_playlist),
 								{playlist: child_playlist}
 							));
 						}
@@ -170,20 +248,20 @@ function UI(_library) {
 			for(const playlist of top_level) {
 				_content_container.append(_createListItem(
 					playlist.name,
-					() => _openFolder(playlist),
+					() => this.openFolder(playlist),
 					{playlist: playlist}
 				));
 				for(const child of playlist.children) {
 					const indent = _createBoxIndent(child, playlist.children);
 					_content_container.append(_createListItem(
 						`${indent}${child.name}`,
-						() => _openFolder(child),
+						() => this.openFolder(child),
 						{playlist: child}
 					));
 				}
 			}
 
-			URLManager.deleteParam(URLManager.params.folder);
+			ConfigManager.removeValue(ConfigManager.params.folder);
 		}
 
 		const currently_playing = Elements.find('#content .playing');
@@ -192,107 +270,6 @@ function UI(_library) {
 		} else {
 			window.scrollTo(0, 0);
 		}
-	};
-
-	const constructor = () => {
-		_content_container = Elements.find('#content');
-		_currently_playing_elem = Elements.find('#currently-playing');
-		_shuffle_element = Elements.find('#shuffle');
-		_play_pause_button = Elements.find('#play-pause');
-		_repeat_element = Elements.find('#repeat');
-		_gain_element = Elements.find('#gain');
-		_top_dock_path = Elements.find('#top-dock .path');
-		_seekbar = Elements.find('#seekbar');
-
-		_play_pause_button.onclick = (e) => {if(AudioManager.state() !== play_pause_icons.stopped) AudioManager.togglePlayPause(); return false;}
-		_seekbar.onmousedown = (e) => {AudioManager.seekPercent(e.clientX / window.innerWidth * 100); return false;}
-
-		Elements.find('#root').onclick = () => {_openFolder(); return false;} //root path
-		_gain_element.oninput = () => {
-			AudioManager.gain(parseInt(_gain_element.value));
-			URLManager.updateParam(URLManager.params.gain, _gain_element.value);
-		}
-
-		Elements.find('#previous').onclick = (e) => {AudioManager.previous(); return false;}
-		Elements.find('#next').onclick = (e) => {AudioManager.next(); return false;}
-
-		_shuffle_element.onclick = () => {
-			const previous_state = AudioManager.shuffle();
-			const new_state = AudioManager.shuffle(!previous_state);
-			_shuffle_element.innerText = shuffle_icons[new_state] || shuffle_icons.false;
-			URLManager.updateParam(URLManager.params.shuffle, new_state);
-			return false;
-		};
-
-		_repeat_element.onclick = () => {
-			const previous_state = AudioManager.repeat();
-			let index = repeat_icon_states.indexOf(previous_state);
-			if(++index > repeat_icon_states.length-1) index = 0;
-			const new_state = AudioManager.repeat(repeat_icon_states[index]);
-			_repeat_element.innerText = repeat_icons[new_state] || repeat_icons.none;
-			URLManager.updateParam(URLManager.params.repeat, new_state);
-			return false;
-		};
-	};
-
-	this.parseConfig = async () => {
-		const params = URLManager.getParams();
-		if(params.fgcolour !== undefined) {
-			document.body.style.setProperty("--fg-colour", params.fgcolour);
-		}
-
-		if(params.bgcolour !== undefined) {
-			document.body.style.setProperty("--bg-colour", params.bgcolour);
-		}
-
-		if(params.dockcolour !== undefined) {
-			document.body.style.setProperty("--dock-colour", params.dockcolour);
-		}
-
-		IconManager.setColours(document.body.style.getPropertyValue("--fg-colour"), document.body.style.getPropertyValue("--dock-colour"));
-
-		if(params.playlist !== undefined) {
-			await _library.addRemotePlaylists(params.playlist);
-		}
-
-		if(params.nowplaying !== undefined) {
-			const folder_path = FolderPath.fromString(params.nowplaying);
-			const found_playlist = folder_path.findPlaylist(_library.getPlaylists());
-			if(found_playlist) {
-				const found_song = _library.getSongs().find(x => x.metadata_hash === folder_path.song_hash()); //collisions are not important
-				(async () => {
-					await _openFile(found_playlist, found_song);
-					AudioManager.pause();
-				})();
-			}
-		}
-
-		if(params.gain !== undefined) {
-			_gain_element.value = params.gain;
-			AudioManager.gain(parseInt(params.gain));
-		}
-
-		if(params.shuffle !== undefined) {
-			_shuffle_element.innerText = shuffle_icons[params.shuffle];
-			AudioManager.shuffle(params.shuffle);
-		}
-
-		if(params.repeat !== undefined) {
-			const index = repeat_icon_states.indexOf(params.repeat);
-			if(index !== -1) {
-				_repeat_element.innerText = repeat_icons[params.repeat];
-				AudioManager.repeat(params.repeat);
-			}
-		}
-
-		if(params.folder !== undefined) {
-			const found_playlist = FolderPath.fromString(params.folder).findPlaylist(_library.getPlaylists());
-			if(found_playlist) {
-				return _openFolder(found_playlist); //return so it doesn't open root
-			}
-		}
-
-		_openFolder();
 	};
 
 	//these are bound to AudioManager events by main.mjs
@@ -310,18 +287,18 @@ function UI(_library) {
 			if(previous) previous.classList.remove("playing");
 
 			document.title = "𝚖𝚎𝚍𝚒𝚊_𝚙𝚕𝚊𝚢𝚎𝚛";
-			URLManager.deleteParam(URLManager.params.nowplaying);
+			ConfigManager.removeValue(ConfigManager.params.nowplaying);
 			return;
 		}
 
 		_currently_playing_elem.innerText = song.title;
 		_currently_playing_elem.title = song.title;
-		_currently_playing_elem.onclick = () => {_openFolder(playlist); return false;}
+		_currently_playing_elem.onclick = () => {this.openFolder(playlist); return false;}
 
 		document.title = UnicodeMonospace.convert(`${song.title} ＋＞ ${playlist.name}`);
-		URLManager.updateParam(URLManager.params.nowplaying, FolderPath.fromPlaylist(playlist).appendSong(song));
+		ConfigManager.setValue(ConfigManager.params.nowplaying, FolderPath.fromPlaylist(playlist).appendSong(song));
 
-		const folder_path = URLManager.getParams().folder;
+		const folder_path = ConfigManager.getValue(ConfigManager.params.folder);
 		const playlist_folder_path = FolderPath.fromPlaylist(playlist).toString();
 
 		if(folder_path === playlist_folder_path) { //currently playing playlist is open

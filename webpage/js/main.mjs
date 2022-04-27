@@ -3,6 +3,7 @@
 import Library from "./library.mjs";
 import Elements from "./elements.mjs";
 import AudioManager from "./audio_manager.mjs";
+import ConfigManager from "./config_manager.mjs";
 import UI from "./ui.mjs";
 
 try {
@@ -14,7 +15,7 @@ try {
 	AudioManager.bindPlayPause(ui.updatePlayPause);
 	AudioManager.bindTimeUpdate(ui.updateSeek);
 
-	await ui.parseConfig();
+	await ConfigManager.setLibrary(library).loadConfig(ui);
 
 	window.onkeydown = (e) => {
 		switch(e.key) {
