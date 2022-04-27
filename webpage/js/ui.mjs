@@ -6,7 +6,7 @@ import Elements from "./elements.mjs";
 import AudioManager from "./audio_manager.mjs";
 import URLManager from "./url_manager.mjs";
 import FolderPath from "./folder_path.mjs";
-import generateSVGFavicon from "./svg_favicon.mjs";
+import SVGIcon from "./svg_icon.mjs";
 
 function UI(_library) {
 	let _content_container;
@@ -251,7 +251,7 @@ function UI(_library) {
 			document.body.style.setProperty("--dock-background", params.dockcolour);
 		}
 
-		generateSVGFavicon(document.body.style.getPropertyValue("--text-colour"), document.body.style.getPropertyValue("--dock-background"));
+		SVGIcon.setColours(document.body.style.getPropertyValue("--text-colour"), document.body.style.getPropertyValue("--dock-background"));
 
 		if(params.playlist !== undefined) {
 			await _library.addRemotePlaylists(params.playlist);
