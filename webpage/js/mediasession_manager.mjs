@@ -6,6 +6,20 @@ import IconManager from "./icon_manager.mjs";
 //seems unreliable for some reason - first played track works, every other (at a random point) doesn't
 
 function MediaSessionManager() {
+	window.metadata = {
+		title: "None",
+		artist: "None",
+		album: "None"
+	};
+
+	const _updateMetadata = (playlist, song) => {
+		window.metadata = {
+			title: song.title,
+			artist: song.artist,
+			album: playlist.name,
+		};
+	};
+
 	if(navigator.mediaSession) {
 		this.bind = (action, handler) => navigator.mediaSession.setActionHandler(action, handler);
 
@@ -28,6 +42,8 @@ function MediaSessionManager() {
 				return;
 			}
 
+			_updateMetadata(playlist, song);
+
 			navigator.mediaSession.metadata = new MediaMetadata({
 				title: UnicodeMonospace.convert(song.title),
 				artist: song.artist,
@@ -40,7 +56,7 @@ function MediaSessionManager() {
 		this.bind = () => undefined;
 		this.setPlaybackState = () => undefined;
 		this.setPositionState = () => undefined;
-		this.setMetadata = () => undefined;
+		this.setMetadata = _updateMetadata;
 	}
 }
 
