@@ -1,4 +1,6 @@
-## Installation
+## Webpage Configuration
+Check [the wiki](https://github.com/505e06b2/media_player/wiki) for help
+## Server Installation
 
 1. Execute:
 ```sh
@@ -29,5 +31,6 @@ Symlinks are encouraged, but a "folder" of `music` must exist in the `webpage/` 
 npm start
 ```
 
-## Configuration
+## Server Configuration
+
 Alter the `settings.mjs` file as required
