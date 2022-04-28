@@ -72,7 +72,7 @@ a {
 }
 
 #content.list a[type],
-#top-dock a {
+.dock a {
 	cursor: pointer;
 }
 
