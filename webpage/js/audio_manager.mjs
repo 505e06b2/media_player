@@ -88,6 +88,8 @@ function AudioManager() {
 				else if(e.message.includes("interrupted by a call to pause()")) ; //IGNORE/NO-OP - same as above, but thrown for the new song?
 				else if(e.message.includes("user didn't interact with the document")) {
 					_audio.onpause(); //called specifically for _play_pause_callback
+				} else if(e.message.includes("no supported source was found")) {
+					this.stop();
 				}
 				else console.trace(e);
 			} else {
