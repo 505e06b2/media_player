@@ -1,7 +1,7 @@
 :root {
-	--bg-colour: rgb(10, 10, 10);
-	--fg-colour: rgb(31, 255, 80);
-	--dock-colour: rgb(2, 51, 0);
+	--bg-colour: #0a0a0a;
+	--fg-colour: #1fff50;
+	--dock-colour: #023300;
 	--dock-height: 40px;
 	--font-family: "IBM", "Courier New", Courier, monospace;
 }
