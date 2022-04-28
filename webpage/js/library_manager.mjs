@@ -13,9 +13,13 @@ function LibraryManager(api_response) {
 	const _playlists = [];
 	const _songs = [];
 
+	const _artist_playlists = []; //they should not be changed after init
+	const _created_playlists = []; //will change after init
+
 	this.getPlaylists = () => _playlists;
 	this.getSongs = () => _songs;
-	this.getTopLevelPlaylists = () => _playlists.filter(x => !x.parent);
+	this.getArtistPlaylists = () => _artist_playlists;
+	this.getCreatedPlaylists = () => _created_playlists;
 
 	const _generatePlaylist = (data) => {
 		const playlist = new this.Playlist();
@@ -40,8 +44,12 @@ function LibraryManager(api_response) {
 
 		//initialise playlists
 		for(const playlist_data of api_response.playlists) {
-			_playlists.push(_generatePlaylist(playlist_data));
+			const playlist = _generatePlaylist(playlist_data);
+			_playlists.push(playlist);
+			if(playlist.type === "artist") _artist_playlists.push(playlist);
+			else if(playlist.type === "created") _created_playlists.push(playlist);
 		}
+		//sort created playlists?
 
 		//link parent-child
 		for(const playlist of _playlists) {
@@ -73,8 +81,11 @@ function LibraryManager(api_response) {
 			}
 			const playlist = _generatePlaylist(playlist_data);
 			playlist.children = [];
-			_playlists.unshift(playlist);
+			_playlists.push(playlist);
+			_created_playlists.push(playlist);
 		}
+
+		//sort created playlists?
 	};
 
 	constructor();

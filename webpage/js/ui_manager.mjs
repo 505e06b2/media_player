@@ -244,8 +244,21 @@ function UIManager() {
 			}
 
 		} else { //list top level playlists, with children - orphaned and double-nested (Parent->Child->Child) playlists will not appear
-			const top_level = LibraryManager.getTopLevelPlaylists();
-			for(const playlist of top_level) {
+			const created_playlists = LibraryManager.getCreatedPlaylists();
+			if(created_playlists.length) {
+				for(const playlist of created_playlists) {
+					_content_container.append(_createListItem(
+						playlist.name,
+						() => this.openFolder(playlist),
+						{playlist: playlist}
+					));
+				}
+
+				_content_container.append(_createListItem(" "));
+			}
+
+			const artist_playlists = LibraryManager.getArtistPlaylists();
+			for(const playlist of artist_playlists) {
 				_content_container.append(_createListItem(
 					playlist.name,
 					() => this.openFolder(playlist),
