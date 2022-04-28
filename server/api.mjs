@@ -23,6 +23,14 @@ export async function getLibrary(url) {
 	return cache;
 }
 
+function _findSongIndexFromUri(song_id) {
+	for(const i in cache.songs) {
+		const song = cache.songs[i];
+		if(song.uri === song_id) return i;
+	}
+	return -1;
+}
+
 //expected a pastebin code, with the text being valid m3u8 (utf8)
 export async function getRemotePlaylist(url) {
 	const ret = createPlaylistObject("Unnamed Playlist");
@@ -57,14 +65,13 @@ export async function getRemotePlaylist(url) {
 							break;
 						}
 
-						const song_id = decodeURI(song_url.pathname);
-						//needs 2 iterations... poor algo
-						const found_song = cache.songs.find(x => x.uri === song_id);
-						if(found_song == false) {
-							ret.error = `\"${song_id}\" is not in the song cache`;
+						const song_uri = decodeURI(song_url.pathname);
+						const found_song_index = _findSongIndexFromUri(song_uri);
+						if(found_song_index === -1) {
+							ret.error = `\"${song_uri}\" is not in the song cache`;
 							break;
 						}
-						ret.song_ids.push(cache.songs.indexOf(found_song));
+						ret.song_ids.push(found_song_index);
 					}
 				} else {
 					ret.error = `\"${playlist_link}\" is an invalid M3U file (no #EXTM3U header)`;
