@@ -60,6 +60,10 @@ function AudioManager() {
 	const _playNext = async (go_back = false, ignore_shuffle = false) => {
 		if(!_current_playlist) return;
 		if(go_back) {
+			if(_audio.currentTime >= 3) {
+				_audio.currentTime = 0;
+				return;
+			}
 			if(--_playlist_index < 0) _playlist_index = _current_playlist.songs.length-1;
 
 		} else if(ignore_shuffle === false && _current_playlist.songs.length > 1 && _shuffle) {
