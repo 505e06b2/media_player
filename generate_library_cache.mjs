@@ -148,6 +148,7 @@ export async function generateLibraryCache() {
 	}
 
 	saveSongCacheFile(song_metadata_cache);
+	library["playlists"].sort((a, b) => caseInsensitiveSort(a.name, b.name));
 
 	return library;
 }
