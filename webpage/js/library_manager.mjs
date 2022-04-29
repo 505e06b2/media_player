@@ -21,6 +21,10 @@ function LibraryManager(api_response) {
 	this.getArtistPlaylists = () => _artist_playlists;
 	this.getCreatedPlaylists = () => _created_playlists;
 
+	const _caseInsensitiveSort = (a, b) => {
+		return a.localeCompare(b, "en", {sensitivity: "base"});
+	}
+
 	const _generatePlaylist = (data) => {
 		const playlist = new this.Playlist();
 		//interpret created date
@@ -49,7 +53,8 @@ function LibraryManager(api_response) {
 			if(playlist.type === "artist") _artist_playlists.push(playlist);
 			else if(playlist.type === "created") _created_playlists.push(playlist);
 		}
-		//sort created playlists?
+
+		_artist_playlists.sort((a, b) => _caseInsensitiveSort(a.name, b.name));
 
 		//link parent-child
 		for(const playlist of _playlists) {
