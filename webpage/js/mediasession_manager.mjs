@@ -7,15 +7,17 @@ import IconManager from "./icon_manager.mjs";
 
 function MediaSessionManager() {
 	window.metadata = {
-		title: "None",
-		artist: "None",
-		album: "None"
+		track: "None",
+		track_monospace: UnicodeMonospace.convert("None"),
+		playlist: "None",
+		playlist_monospace: UnicodeMonospace.convert("None"),
 	};
 
 	const _updateMetadata = (playlist, song) => {
-		window.metadata.title = song.title;
-		window.metadata.artist = song.artist;
-		window.metadata.album = playlist.name;
+		window.metadata.track = song.title;
+		window.metadata.track_monospace = UnicodeMonospace.convert(song.title);
+		window.metadata.playlist = playlist.name;
+		window.metadata.playlist_monospace = UnicodeMonospace.convert(playlist.name);
 	};
 
 	if(navigator.mediaSession) {
