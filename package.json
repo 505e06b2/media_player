@@ -19,6 +19,7 @@
   "dependencies": {
     "farmhash": "^3.2.2",
     "music-metadata": "^7.12.3",
-    "node-fetch": "^3.2.3"
+    "node-fetch": "^3.2.3",
+    "sharp": "^0.30.4"
   }
 }

@@ -9,6 +9,7 @@ import path from "path";
 import * as settings from "../settings.mjs";
 import * as mime_types from "./mime_types.mjs";
 import * as api from "./api.mjs";
+import { createIcon } from "./create_icon.mjs";
 
 function parseRange(range_header, data_length) {
 	const range_prefix = "bytes=";
@@ -46,7 +47,7 @@ http.createServer(async (request, response) => {
 		const headers = Object.assign({
 			"content-type": content_type,
 			"accept-ranges": "bytes",
-			"content-length": content.length
+			"content-length": content.length || 0
 		}, extra_headers);
 
 		response.writeHead(status_code, headers);
@@ -75,6 +76,14 @@ http.createServer(async (request, response) => {
 				return sendTextResponse(500, mime_types.plain_text, "Invalid arguments");
 			}
 			return sendTextResponse(500, mime_types.plain_text, "Invalid endpoint");
+		}
+
+		if(url.pathname === "/icon.png") {
+			const icon_png_data = await createIcon(url);
+			if(icon_png_data) {
+				return sendBinaryResponse(200, mime_types.extensions["png"], icon_png_data);
+			}
+			return sendTextResponse();
 		}
 
 		//send file
