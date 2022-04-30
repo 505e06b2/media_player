@@ -11,6 +11,7 @@ function MediaSessionManager() {
 		track_monospace: UnicodeMonospace.convert("None"),
 		playlist: "None",
 		playlist_monospace: UnicodeMonospace.convert("None"),
+		icon_url: `${location.origin}/${IconManager.getIcon()}`
 	};
 
 	const _updateMetadata = (playlist, song) => {

@@ -1,7 +1,5 @@
 "use strict";
 
-//MOVE THIS ONTO THE SERVER - DO ALL SVG (to png) MANIPULATIONS SERVER-SIDE
-
 import Elements from "./elements.mjs";
 
 const default_icon_path = "icon.png";
