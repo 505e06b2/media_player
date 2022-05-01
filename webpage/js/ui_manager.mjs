@@ -93,7 +93,6 @@ function UIManager() {
 		elem.setAttribute("plain-text", plaintext);
 
 		if(list_item_data.song) {
-			elem.setAttribute("uri", list_item_data.song.uri);
 			elem.setAttribute("type", list_item_types.song);
 
 			const playlist_check = list_item_data.playlist && list_item_data.playlist === AudioManager.getPlaylist();
@@ -317,7 +316,7 @@ function UIManager() {
 		if(folder_path === playlist_folder_path) { //currently playing playlist is open
 			if(previous) previous.classList.remove("playing");
 			const escaped_quotes = song.uri.replace(/"/g, "\\\"");
-			const current = Elements.find(`#content a[uri="${escaped_quotes}"]`);
+			const current = Elements.find(`#content a[href="${escaped_quotes}"]`);
 			if(current) current.classList.add("playing");
 		}
 	};
