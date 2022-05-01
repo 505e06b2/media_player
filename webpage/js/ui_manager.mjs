@@ -316,7 +316,8 @@ function UIManager() {
 
 		if(folder_path === playlist_folder_path) { //currently playing playlist is open
 			if(previous) previous.classList.remove("playing");
-			const current = Elements.find(`#content a[uri="${song.uri}"]`);
+			const escaped_quotes = song.uri.replace(/"/g, "\\\"");
+			const current = Elements.find(`#content a[uri="${escaped_quotes}"]`);
 			if(current) current.classList.add("playing");
 		}
 	};
