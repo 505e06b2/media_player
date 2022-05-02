@@ -9,11 +9,11 @@ import FolderPath from "./folder_path.mjs";
 function MediaSessionManager() {
 	window.metadata = {
 		track: "None",
-		track_monospace: UnicodeMonospace.convert("None"),
+		track_monospace: UnicodeMonospace.convert(track),
 		playlist: "None",
-		playlist_monospace: UnicodeMonospace.convert("None"),
+		playlist_monospace: UnicodeMonospace.convert(playlist),
 		playlist_path: "None",
-		playlist_path_mono: UnicodeMonospace.convert("None"),
+		playlist_path_monospace: UnicodeMonospace.convert(playlist_path),
 		icon_url: `${location.origin}/${IconManager.getIcon()}`
 	};
 
