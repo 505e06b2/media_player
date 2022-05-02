@@ -33,6 +33,10 @@ function FolderPath(path, song_metadata_hash) {
 		return `${this.toString()}${value_delimiter}${song_metadata_hash}`;
 	};
 
+	this.toDisplayString = () => {
+		return this.value().join(" / ");
+	}
+
 	this.toString = () => {
 		return this.value().join(path_separator);
 	}

@@ -22,7 +22,7 @@ function MediaSessionManager() {
 		window.metadata.track_monospace = UnicodeMonospace.convert(song.title);
 		window.metadata.playlist = playlist.name;
 		window.metadata.playlist_monospace = UnicodeMonospace.convert(playlist.name);
-		window.metadata.playlist_path = FolderPath.fromPlaylist(playlist).toString().replace(/\x0F/, " / ");
+		window.metadata.playlist_path = FolderPath.fromPlaylist(playlist).toDisplayString();
 		window.metadata.playlist_path_mono = UnicodeMonospace.convert(window.metadata.playlist_path);
 		window.metadata.icon_url = `${location.origin}/${IconManager.getIcon()}`;
 	};
