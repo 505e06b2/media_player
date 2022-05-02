@@ -19,11 +19,14 @@ function MediaSessionManager() {
 
 	const _updateMetadata = (playlist, song) => {
 		window.metadata.track = song.title;
-		window.metadata.track_monospace = UnicodeMonospace.convert(song.title);
+		window.metadata.track_monospace = UnicodeMonospace.convert(window.metadata.track);
+
 		window.metadata.playlist = playlist.name;
-		window.metadata.playlist_monospace = UnicodeMonospace.convert(playlist.name);
+		window.metadata.playlist_monospace = UnicodeMonospace.convert(window.metadata.playlist);
+
 		window.metadata.playlist_path = FolderPath.fromPlaylist(playlist).toDisplayString();
-		window.metadata.playlist_path_mono = UnicodeMonospace.convert(window.metadata.playlist_path);
+		window.metadata.playlist_path_monospace = UnicodeMonospace.convert(window.metadata.playlist_path);
+
 		window.metadata.icon_url = `${location.origin}/${IconManager.getIcon()}`;
 	};
 
