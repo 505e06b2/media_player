@@ -1,9 +1,9 @@
 "use strict";
 
 import {generateLibraryCache, createPlaylistObject} from "../generate_library_cache.mjs";
-import fetch from "node-fetch";
+import getPaste from "./get_paste.mjs";
 
-const pastebin_code_regex = /^[a-zA-Z0-9]+$/;
+const playlist_code_regex = /^[a-zA-Z0-9]+$/;
 const playlist_tags = {
 	name: "#PLAYLIST:"
 };
@@ -36,16 +36,15 @@ export async function getRemotePlaylist(url) {
 	const ret = createPlaylistObject("Unnamed Playlist");
 	const code = url.searchParams.get("code");
 	if(code) {
-		const code_valid = pastebin_code_regex.test(code);
+		const code_valid = playlist_code_regex.test(code);
 		if(code_valid) {
-			const playlist_link = `https://pastebin.com/raw/${code}`;
 			let raw_playlist;
 			try {
-				raw_playlist = await (await fetch(playlist_link)).text();
+				raw_playlist = await getPaste(code);
 			} catch {}
 
 			if(raw_playlist) {
-				const split_on_newline = raw_playlist.split("\r\n"); //pastebin uses DOS \r\n + no newline at end :(
+				const split_on_newline = raw_playlist.trim().split(/\r?\n/);
 
 				if(split_on_newline[0] && split_on_newline[0].trim() === "#EXTM3U") {
 					for(const raw_line of split_on_newline) {
@@ -74,10 +73,10 @@ export async function getRemotePlaylist(url) {
 						ret.song_ids.push(found_song_index);
 					}
 				} else {
-					ret.error = `\"${playlist_link}\" is an invalid M3U file (no #EXTM3U header)`;
+					ret.error = `Playlist \"${code}\" is an invalid M3U file (no #EXTM3U header)`;
 				}
 			} else {
-				ret.error = `Failed to fetch \"${playlist_link}\"`;
+				ret.error = `Failed to fetch playlist \"${code}\"`;
 			}
 		} else {
 			ret.error = "\"code\" query parameter is invalid";
